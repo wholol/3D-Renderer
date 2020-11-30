@@ -11,9 +11,9 @@ void Pipeline::setProjectionParams(float FovDegrees, float Near, float Far, unsi
 	
 	ZBuffer.reserve(ScreenHeight * ScreenWidth);
 
-	for (auto &zbuffer : ZBuffer)
+	for (int i = 0; i < ScreenHeight * ScreenWidth; ++i)
 	{
-		zbuffer = INFINITY;
+		ZBuffer.emplace_back(INFINITY);
 	}
 }
 
@@ -74,6 +74,8 @@ void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector
 		}
 	}
 	
+	//vertex norm buffer completes calcualtions after the loop.
+	//Access vertex buffer manudally in frag sahder
 
 	//perform model to world transform first.
 	// for i .. i += 3 in index buffer 
@@ -124,7 +126,7 @@ void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector
 
 void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color,bool wireframe)
 {
-	sortZDirection();		//sort traingle z direction
+	//sortZDirection();		//sort traingle z direction
 
 
 	for (int i  = 0 ; i < rastertriangles.size(); ++i)
@@ -138,7 +140,7 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		double y2 = rastertriangles[i].points[2].y;
 		 
 		// d = -(dot (point 0 , normal) )
-		float d = -( rastertriangles[i].points[0].getDotProduct(rastertriangles[i].normal) );
+		float d = ( rastertriangles[i].points[0].getDotProduct(rastertriangles[i].normal) );
 		float a_prime = rastertriangles[i].normal.x / d;
 		float b_prime = rastertriangles[i].normal.y / d;
 		float c_prime = rastertriangles[i].normal.z / d;
@@ -152,19 +154,20 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 
 		for (int j = 1; j < 4; ++j)
 		{
-			rgba[j] = (double)rgba[j] * rastertriangles[i].t;
+			rgba[j] = rgba[j] * rastertriangles[i].t;
 		}
 
 		color = (rgba[0] << 24) + (rgba[1] << 16) + (rgba[2] << 8) + rgba[3];
 
-		Draw::filltriangle(surface, x0, y0, x1, y1,x2, y2, w , a_prime, b_prime , c_prime  , d ,ZBuffer, color);
+		Draw::filltriangle(surface, x0, y0, x1, y1,x2, y2, w , a_prime, b_prime , c_prime , d ,ZBuffer, color);
 		
-		Draw::drawtriangle(surface, x0, y0, x1, y1, x2, y2,
-			ZBuffer,SDL_MapRGB(surface->format, 0, 0, 0));
+		//Draw::drawtriangle(surface, x0, y0, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d,
+		//	ZBuffer,SDL_MapRGB(surface->format, 0, 0, 0));		//wrirefram colour to be black
 	}
 
 	rastertriangles.clear();
 	vertexnormbuffer.clear();
+	ZBuffer.clear();
 }
 
 

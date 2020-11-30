@@ -32,7 +32,7 @@ private:
 	std::vector<float> ZBuffer;
 
 	/*lighting*/
-	Vector3f DiffuseLightDir = { 0.0f , 5.0f , -10.0f};	//to be set be user 
+	Vector3f DiffuseLightDir = { 0.0f , 0.0f , -1.0f};	//to be set be user 
 
 	//functions to be called in rednering pipeline
 	void ModeltoWorldTransform(triangle& original,triangle& output);

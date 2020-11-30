@@ -56,17 +56,14 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	};
 	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
-	model.loadFromFile("data.obj");
+	model.loadFromFile("cube.obj");
 
 }
 
 void Application::Render()
 {
-
-	
-	
 	Mat3f transform = Mat3f::Translate(0, 0, 8);
-	transform = transform * Mat3f::RotateX(rotateX);
+	transform = transform * Mat3f::RotateY(rotateY);
 	transform = transform * Mat3f::RotateX(rotateX);
 		
 	pipeline.setTransformations(transform);

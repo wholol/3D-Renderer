@@ -134,20 +134,26 @@ public:
 		}
 	}
 
-	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, std::vector<float>& ZBuffer,Uint32 color = 0)
+	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>& ZBuffer,Uint32 color = 0)
 	{
-		drawline(surface, x0, y0, x1, y1,ZBuffer, color);
-		drawline(surface, x1, y1, x2, y2, ZBuffer, color);
-		drawline(surface, x0, y0, x2, y2, ZBuffer, color);
-
+		drawline(surface, x0, y0, x1, y1,  w, a_prime, b_prime, c_prime, d, ZBuffer, color);
+		drawline(surface, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
+		drawline(surface, x0, y0, x2, y2, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
+									
 	}
 
-	static void drawline(SDL_Surface* surface, int x0, int y0, int x1, int y1, std::vector<float>&  ZBuffer, Uint32 color = 0xFFFFFF)
+	static void drawline(SDL_Surface* surface, int x0, int y0, int x1, int y1, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>& ZBuffer, Uint32 color = 0xFFFFFF)
 	{
 		for (float t = 0.; t < 1.; t += .01) {
+			
 			int x = x0 + (x1 - x0)*t;
 			int y = y0 + (y1 - y0)*t;
-			putpixel(surface, x, y, ZBuffer, color);
+			float zpos_camspace_inv = ((a_prime * x) + (b_prime * y) + c_prime);
+			float zpos_ndc = zpos_camspace_inv * w;
+			if (ZBuffer[x + 800 * y] > zpos_ndc) {
+				ZBuffer[x + 800 * y] = zpos_ndc;
+				putpixel(surface, x, y, ZBuffer, color);
+			}	
 		}
 	}
 
@@ -183,13 +189,11 @@ private:
 
 				//z buffer here
 				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
-				float zpos_ndc = zpos_camspace_inv * w;
+				double zpos_ndc = zpos_camspace_inv * w;
 				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-					ZBuffer[x +800 * scanline] = zpos_ndc;
+					ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, ZBuffer, color);
 				}
-
-				
 			}
 		}
 	}
@@ -228,7 +232,7 @@ private:
 				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
 					ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, ZBuffer, color);
-				putpixel(surface,x, scanline,ZBuffer,color);
+				}
 			
 			}
 		}
