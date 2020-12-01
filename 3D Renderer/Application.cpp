@@ -54,9 +54,9 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 		{Vector3f(1 ,0 ,1) , Vector3f(0 ,0 ,0) , Vector3f(1 ,0 ,0)},
 
 	};
-	model.loadFromFile(testpoints, m);
+	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
-	//model.loadFromFile("cube.obj");
+	model.loadFromFile("sphere.obj");
 
 }
 

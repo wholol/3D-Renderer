@@ -53,7 +53,6 @@ public:
 		m.triangles = std::move(points);
 			
 	}
-
 	
 	std::vector<Vector3f> vertexbuffer;
 	std::vector<Vector3f> vertexnormbuffer;
