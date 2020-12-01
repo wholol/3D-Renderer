@@ -81,7 +81,7 @@ public:
 				std::swap(p1_x, p2_x);
 				std::swap(p1_color, p2_color);
 			}
-			//fillflattoptriangle(surface,p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			fillflattoptriangle(surface,p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
 		}
 
 		else {
@@ -90,7 +90,7 @@ public:
 			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 			//note that p2y is the middle, and it will be used for both sides).
 			fillflatbottomtriangle(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
-			//fillflattoptriangle(surface, p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			fillflattoptriangle(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
 			
 			/*
 			if (x4 > p2_x) {		//right side major triangle
@@ -229,8 +229,8 @@ private:
 				}
 
 				if (p1_y - p3_y) {
-					double t1 = (scanline - p3_y) / (p1_y - p3_y);
-					double t2 = (p1_y - scanline) / (p1_y - p3_y);
+					double t1 = (double)(scanline - p3_y) / (double)(p1_y - p3_y);
+					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p3_y);
 					//Ib = (p1_color * (scanline - p3_y) + p3_color * (p1_y - scanline)) / (p1_y - p3_y);
 				
 					Ib[1] = ((p1_color & 0x00FF0000) >> 16) *  t1 + ((p3_color & 0x00FF0000) >> 16) * t2;
@@ -286,10 +286,10 @@ private:
 		//p3_x , p3_y = end of flat top triangle 
 		//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
 
-		bool left_hand_major = false;
+		bool left_side_major = false;
 		if (p2_x > p4_x)	
 		{
-			left_hand_major = true;
+			left_side_major = true;
 			std::swap(p2_x, p4_x);
 		}
 
@@ -306,19 +306,65 @@ private:
 		if (dy) {
 			slope_2 = (float)dx2 / (float)dy;
 		}
-		
+
+		Uint8  Ip[4], Ib[4], Ia[4];
+
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
 			int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
 			int px2 = slope_2 * (float)(scanline - p3_y) + p3_x;
 
-
-			const int xstart = (int)px1;
+			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
+			
+			if (p3_y - p2_y) {
+				double t1 = (double)(scanline - p2_y) / (double)(p3_y - p2_y);
+				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p2_y);
+				Ia[1] = ((p3_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
+				Ia[2] = ((p3_color & 0x0000FF00) >> 8) * t1 + ((p2_color & 0x0000FF00) >> 8) * t2;
+				Ia[3] = (p3_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
+			}
 
-			for (int x = xstart; x <= xEnd; ++x) {
+			if (p3_y - p1_y) {
+				double t1 = (double)(scanline - p1_y) / (double)(p3_y - p1_y);
+				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p1_y);
+				//Ib = (p1_color * (scanline - p3_y) + p3_color * (p1_y - scanline)) / (p1_y - p3_y);
+
+				Ib[1] = ((p3_color & 0x00FF0000) >> 16) *  t1 + ((p1_color & 0x00FF0000) >> 16) * t2;
+				Ib[2] = ((p3_color & 0x0000FF00) >> 8) *  t1 + ((p1_color & 0x0000FF00) >> 8) *  t2;
+				Ib[3] = (p3_color & 0x000000FF) *  t1 + (p1_color & 0x000000FF) *  t2;
+			}
+
+			if (left_side_major)
+			{
+				std::swap(Ia, Ib);
+			}
+
+
+			for (int x = xStart; x <= xEnd; ++x) {
+
+				if ((xStart - xEnd) == 0)	//if the point is at the vertex
+				{
+					Ip[0] = (p1_color & 0xFF000000) >> 24;
+					Ip[1] = (p1_color & 0x00FF0000) >> 16;
+					Ip[2] = (p1_color & 0x0000FF00) >> 8;
+					Ip[3] = (p1_color & 0x000000FF);
+				}
+
+				else
+				{
+					double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
+					double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
+					//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
+					Ip[0] = 0;	//alpha should always make it visible
+					Ip[1] = (Ia[1] * t1) + (Ib[1] * t2);
+					Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
+					Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
+				}
+
 				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				float zpos_ndc = zpos_camspace_inv * w;
 				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+					Uint32 goroud = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
 					ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, ZBuffer, color);
 				}

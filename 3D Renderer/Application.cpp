@@ -56,7 +56,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	};
 	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
-	model.loadFromFile("sphere.obj");
+	model.loadFromFile("data.obj");
 
 }
 
