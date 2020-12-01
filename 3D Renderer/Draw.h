@@ -42,6 +42,10 @@ public:
 
 	static void filltriangle(SDL_Surface* surface, int p1_x, int p1_y, int p2_x, int p2_y, int p3_x, int p3_y,float w, float a_prime, float b_prime, float c_prime, 
 		float d , std::vector<float>& ZBuffer,std::vector<Vector3f>& vertexnormbuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color, Uint32 color = 0xFFFFFF)
+
+		/*fill the triangle such that :
+		 p1 is the top vertex, 2 is the middle vertex, p3 is the bottom vertex
+		*/
 	{
 		if (p2_y < p1_y) {		
 			std::swap(p2_y, p1_y);
@@ -77,27 +81,34 @@ public:
 				std::swap(p1_x, p2_x);
 				std::swap(p1_color, p2_color);
 			}
-			fillflattoptriangle(surface,p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			//fillflattoptriangle(surface,p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
 		}
 
 		else {
 			int x4 = p1_x + (float)((float)(p2_y - p1_y) / (float)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
+			
+			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
+			//note that p2y is the middle, and it will be used for both sides).
+			fillflatbottomtriangle(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			//fillflattoptriangle(surface, p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			
+			/*
 			if (x4 > p2_x) {		//right side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p2_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
 				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color,color);
 			}
 
 			else {	//left side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p2_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color,p3_color,color);	//flat bottom
+				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color,p3_color,color);	//flat bottom
 				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color,p3_color,color);		//flat top
-			}
+				}
+				*/
 		}
 	}
 
 	static void filltriangleTex(SDL_Surface* surface, SDL_Texture *texture, int u0, int v0, int u1, int v1,int u2,int v2, std::vector<float>& ZBuffer, Uint32 color = 0xFFFFFF)
 	{
 		if (v1 < v0) {
-
 			std::swap(u1, u0);
 			std::swap(v1, v0);
 		}
@@ -166,92 +177,139 @@ public:
 	}
 
 private:
-	static void fillflatbottomtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, float w, float a_prime, float b_prime, float c_prime, float d , std::vector<float>&  ZBuffer,
+	static void fillflatbottomtriangle(SDL_Surface* surface, int p1_x, int p1_y, int p2_x, int p2_y, int p4_x, int p3_y, float w, float a_prime, float b_prime, float c_prime, float d , std::vector<float>&  ZBuffer,
 		std::vector<Vector3f>& vertexnormbuffer, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
 		Uint32 color = 0xFFFFFF)
 	{
-		int dy1 = y1 - y0;
-		int dy2 = y2 - y0;
+		//by default:
+		//p1_x , p1_y = top of flat botom triangle
+		//p2_x , p2_y = end of flat bottom triangle (vertex side)
+		//p4_x , p2_y = end of flat bottom triangle (non vertex side)
+		//p3_y = for end of overall triangle - used for goroud interpolation of colour intensity 
 
-		int dx1 = x1 - x0;
-		int dx2 = x2 - x0;
-		float slope_1 = 0; float slope_2 = 0;
-
-		if (dy1) {
-			slope_1 = (float)dx1 / (float)dy1;
-		}
-
-		if (dy2) {
-			slope_2 = (float)dx2 / (float)dy2;
-		}
-
-		Uint32 Ia, Ib, Ip;
-
-		for (int scanline = y0; scanline <= y1; scanline++) {
-			int px1 = slope_1 * (float)(scanline - y1) + x1;	
-			int px2 = slope_2 * (float)(scanline - y2) + x2;	
-
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
-
-			
-			//goroud calcualtion : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
-			
-			if ((y1 - y0) == 0)
-			{
-				Ia = p2_color;
-				Ib = p3_color;
-			}
-			else {
-				Ia = p1_color * (scanline - y0) + p2_color * (y1 - scanline) / (y1 - y0);
-				Ib = p1_color * (scanline - y0) + p2_color * (y1 - scanline) / (y1 - y0);
-			}
-			
-			for (int x = xStart; x <= xEnd; ++x) {
-				
-				if ((xStart - xEnd) == 0)
-				{
-					Ip = p1_color;
-				}
-				else
-				{
-					Ip = (Ia * (xEnd - x) + Ib * (x - xStart)) / (xEnd - xStart);
-				}
-				
-				//z buffer here
-				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
-				double zpos_ndc = zpos_camspace_inv * w;
-				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-					ZBuffer[x + 800 * scanline] = zpos_ndc;
-					putpixel(surface, x, scanline, ZBuffer,Ip);
-				}
-			}
-		}
-	}
-	static void fillflattoptriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer,  
-		std::vector<Vector3f>& vertexnormbuffer, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
-		Uint32 color = 0xFFFFFF)
-	{
-		int dy1 = y2 - y0;
-		int dy2 = y2 - y1;
-
-		int dx1 = x2 - x0;
-		int dx2 = x2 - x1;
-		float slope_1 = 0; float slope_2 = 0;
-
-		if (dy1) {
-			slope_1 = (float)dx1 / (float)dy1;
-		}
-
-
-		if (dy2) {
-			slope_2 = (float)dx2 / (float)dy2;
-		}
-
+		bool left_side_major = false;
 		
-		for (int scanline = y2; scanline >= y0; scanline--) {
-			int px1 = slope_1 * (float)(scanline - y0) + x0;
-			int px2 = slope_2 * (float)(scanline - y2) + x2;
+		if (p2_x > p4_x)	//if the triangle is left side major, i.e. non vertex side xpos < vertex side xpos
+		{
+		left_side_major = true;
+		std::swap(p4_x, p2_x);
+		}
+
+		int dy = p2_y - p1_y;	
+		int dx1 = p2_x - p1_x;	
+		int dx2 = p4_x - p1_x;
+
+		float slope_1 = 0; float slope_2 = 0;
+
+		if (dy) {
+			slope_1 = (float)dx1 / (float)dy;
+		}
+
+		if (dy) {
+			slope_2 = (float)dx2 / (float)dy;
+		}
+
+		Uint8  Ip[4] , Ib[4], Ia[4];
+			for (int scanline = p1_y; scanline <= p2_y; scanline++) {
+				int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
+				int px2 = slope_2 * (float)(scanline - p2_y) + p4_x;
+
+				const int xStart = (int)px1;
+				const int xEnd = (int)px2;
+
+				//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
+				//vertex side intensity
+				//Ia = (p1_color * (scanline - p2_y) + p2_color * (p1_y - scanline)) / (p1_y - p2_y);
+				if (p1_y - p2_y) {
+					double t1 = (double)(scanline - p2_y) / (double)(p1_y - p2_y);
+					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p2_y);
+					Ia[1] = ((p1_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
+					Ia[2] = ((p1_color & 0x0000FF00) >> 8) * t1 + ((p2_color & 0x0000FF00) >> 8) * t2;
+					Ia[3] = (p1_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
+				}
+
+				if (p1_y - p3_y) {
+					double t1 = (scanline - p3_y) / (p1_y - p3_y);
+					double t2 = (p1_y - scanline) / (p1_y - p3_y);
+					//Ib = (p1_color * (scanline - p3_y) + p3_color * (p1_y - scanline)) / (p1_y - p3_y);
+				
+					Ib[1] = ((p1_color & 0x00FF0000) >> 16) *  t1 + ((p3_color & 0x00FF0000) >> 16) * t2;
+					Ib[2] = ((p1_color & 0x0000FF00) >> 8) *  t1 + ((p3_color & 0x0000FF00) >> 8) *  t2;
+					Ib[3] = (p1_color & 0x000000FF) *  t1 + (p3_color & 0x000000FF) *  t2;
+				}
+
+				if (left_side_major)
+				{
+					std::swap(Ia, Ib);
+				}
+
+				for (int x = xStart; x <= xEnd; ++x) {
+
+					if ((xStart - xEnd) == 0)	//if the point is at the vertex
+					{
+						Ip[0] = (p1_color & 0xFF000000) >> 24;	
+						Ip[1] = (p1_color & 0x00FF0000) >> 16;
+						Ip[2] = (p1_color & 0x0000FF00) >> 8;
+						Ip[3] = (p1_color & 0x000000FF);
+					}
+
+					else
+					{
+						double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
+						double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
+						//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
+						Ip[0] = 0;	//alpha should always make it visible
+						Ip[1] = (Ia[1] * t1) + (Ib[1] * t2);
+						Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
+						Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
+					}
+
+					//z buffer here
+					float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+					double zpos_ndc = zpos_camspace_inv * w;
+					if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+						Uint32 goroudcol = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
+						ZBuffer[x + 800 * scanline] = zpos_ndc;
+						putpixel(surface, x, scanline, ZBuffer, goroudcol);
+					}
+				}
+			}
+	}
+
+	static void fillflattoptriangle(SDL_Surface* surface, int p2_x, int p2_y, int p4_x, int p1_y, int p3_x, int p3_y, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer,  
+		std::vector<Vector3f>& vertexnormbuffer, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
+		Uint32 color = 0xFFFFFF)
+	{
+		//by default:
+		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
+		//p4_x , p2_y = end right flat top triangle 
+		//p3_x , p3_y = end of flat top triangle 
+		//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
+
+		bool left_hand_major = false;
+		if (p2_x > p4_x)	
+		{
+			left_hand_major = true;
+			std::swap(p2_x, p4_x);
+		}
+
+		int dy = p3_y - p2_y;
+		int dx1 = p3_x - p2_x;
+		int dx2 = p3_x - p4_x;
+
+		float slope_1 = 0; float slope_2 = 0;
+
+		if (dy) {
+			slope_1 = (float)dx1 / (float)dy;
+		}
+
+		if (dy) {
+			slope_2 = (float)dx2 / (float)dy;
+		}
+		
+		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
+			int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
+			int px2 = slope_2 * (float)(scanline - p3_y) + p3_x;
 
 
 			const int xstart = (int)px1;

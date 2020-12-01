@@ -158,16 +158,20 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 			p3_vertex_t = 0.0;
 		}
 
+		p1_vertex_rgba[0] = lightcol[0];
+		p2_vertex_rgba[1] = lightcol[0];
+		p3_vertex_rgba[2] = lightcol[0];
+		diffuse_rgba[0] = lightcol[0];
+
 #define STORE_RGBA 1
 		for (int j = 1; j < 4; ++j)
 		{
 			diffuse_rgba[j] = lightcol[j] * (rastertriangles[i].t);		//indiviual diffuse colour output
-			
 			p1_vertex_rgba[j] = lightcol[j] * p1_vertex_t;		//indiviual diffuse colour output
 			p2_vertex_rgba[j] = lightcol[j] * p2_vertex_t;		//indiviual diffuse colour output
 			p3_vertex_rgba[j] = lightcol[j] * p3_vertex_t;		//indiviual diffuse colour output
 
-#if STORE_RGBA
+#if STORE_RGBA 
 			rastertriangles[i].p1_rgba[j] = p1_vertex_rgba[j];
 			rastertriangles[i].p2_rgba[j] = p2_vertex_rgba[j];
 			rastertriangles[i].p3_rgba[j] = p3_vertex_rgba[j];
@@ -176,6 +180,7 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 
 		Uint32 diffuse_color, p1_color, p2_color, p3_color;
 		diffuse_color = (diffuse_rgba[0] << 24) + (diffuse_rgba[1] << 16) + (diffuse_rgba[2] << 8) + diffuse_rgba[3];
+		
 		p1_color = (p1_vertex_rgba[0] << 24) + (p1_vertex_rgba[1] << 16) + (p1_vertex_rgba[2] << 8) + p1_vertex_rgba[3];
 		p2_color = (p2_vertex_rgba[0] << 24) + (p2_vertex_rgba[1] << 16) + (p2_vertex_rgba[2] << 8) + p2_vertex_rgba[3];
 		p3_color = (p3_vertex_rgba[0] << 24) + (p3_vertex_rgba[1] << 16) + (p3_vertex_rgba[2] << 8) + p3_vertex_rgba[3];
@@ -184,7 +189,6 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		rastertriangles[i].p1_color = p1_color;
 		rastertriangles[i].p2_color = p2_color;
 		rastertriangles[i].p3_color = p3_color;
-	
 	}
 
 	for (int i  = 0 ; i < rastertriangles.size(); ++i)
