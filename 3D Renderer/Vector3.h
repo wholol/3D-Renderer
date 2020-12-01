@@ -44,7 +44,7 @@ public:
 	}
 
 	T getMagnitude() const {
-		return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+		return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);
 	}			
 	
 	Vector3 getNormalized() const {

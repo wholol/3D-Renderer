@@ -1,6 +1,9 @@
 #include "Pipeline.h"
 #include "Draw.h"
+#include "Timer.h"
 #include <algorithm>
+#include <chrono>
+#include <iostream>
 
 void Pipeline::setProjectionParams(float FovDegrees, float Near, float Far, unsigned int ScreenHeight, unsigned int ScreenWidth)
 {
@@ -32,9 +35,10 @@ void Pipeline::setCamera(Vector3f& camerapos, Vector3f& lookDir)
 
 void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, bool testforcull)
 {
-
+	/*
 	for (int i = 0; i < indexbuffer.size(); i += 3)
 	{
+	
 		int a = indexbuffer[i];
 		int b = indexbuffer[i + 1];
 		int c = indexbuffer[i + 2];
@@ -68,10 +72,28 @@ void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector
 			
 			WorldtoCameraTransform(temp);
 			setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
+			//clipping here
 			NDCTransform(temp);
 			ViewPortTransform(temp);
 			rastertriangles.emplace_back(temp);
 		}
+	}*/
+	
+	for (auto& tri : m.triangles)
+	{
+		triangle temp;
+		ModeltoWorldTransform(tri, temp);
+		if (!cullTriangle(temp, camerapos))			//if the triangle does not need to be culled, proceed
+		{
+
+			WorldtoCameraTransform(temp);
+			setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
+			//clipping here
+			NDCTransform(temp);
+			ViewPortTransform(temp);
+			rastertriangles.emplace_back(temp);
+		}
+
 	}
 	
 	//vertex norm buffer completes calcualtions after the loop.
@@ -95,79 +117,74 @@ void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector
 				//z buffering time...
 				//use i for coomputed vertex normal points for specular lighting..?
 				//get lighting color
-	/*
-	for (auto& triangles : m.triangles) {
-		triangle temp;
-		
-		ModeltoWorldTransform(triangles,temp);			//model view projection transform on the triangles.
-	
-		if (testforcull)	//check if culling is enabled
-		{		
-		
-			if (!cullTriangle(temp, camerapos))			//if the triangle does not need to be culled, proceed
-			{
-				setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
-				WorldtoCameraTransform(temp);
-				NDCTransform(temp);
-				ViewPortTransform(temp); 
-				rastertriangles.emplace_back(temp);
-			}
-		}
-
-		else {		//if user ds not want culling
-			setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
-			WorldtoCameraTransform(temp);
-			NDCTransform(temp);
-			ViewPortTransform(temp);
-			rastertriangles.emplace_back(temp);
-		}
-	}*/
 }
 
 void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color,bool wireframe)
 {
-	//sortZDirection();		//sort traingle z direction
+	Uint8 modified_col[4];
+	sortZDirection();
+	for (int i = 0; i < rastertriangles.size(); ++i)
+	{
+		Uint8 lightcol[4];
+		lightcol[0] = (color & 0xFF000000) >> 24;
+		lightcol[1] = (color & 0x00FF0000) >> 16;
+		lightcol[2] = (color & 0x0000FF00) >> 8;
+		lightcol[3] = (color & 0x000000FF);
 
+		
+
+		for (int j = 1; j < 4; ++j)
+		{
+			modified_col[j] = lightcol[j] * rastertriangles[i].t;
+
+		}
+		Uint32 newcolor;
+		newcolor = (modified_col[0] << 24) + (modified_col[1] << 16) + (modified_col[2] << 8) + modified_col[3];
+		rastertriangles[i].color = newcolor;
+	}
 
 	for (int i  = 0 ; i < rastertriangles.size(); ++i)
 	{
-		double x0 = rastertriangles[i].points[0].x;
-		double x1 = rastertriangles[i].points[1].x;
-		double x2 = rastertriangles[i].points[2].x;
+		
+		double p1_x = rastertriangles[i].points[0].x;
+		double p2_x = rastertriangles[i].points[1].x;
+		double p3_x = rastertriangles[i].points[2].x;
 
-		double y0 = rastertriangles[i].points[0].y;
-		double y1 = rastertriangles[i].points[1].y;
-		double y2 = rastertriangles[i].points[2].y;
-		 
-		// d = -(dot (point 0 , normal) )
+		double p1_y = rastertriangles[i].points[0].y;
+		double p2_y = rastertriangles[i].points[1].y;
+		double p3_y = rastertriangles[i].points[2].y;
+
+		int p1_index = rastertriangles[i].index[0];		
+		int p2_index = rastertriangles[i].index[1];		
+		int p3_index = rastertriangles[i].index[2];		
+		
+		// plane equation parameters
 		float d = ( rastertriangles[i].points[0].getDotProduct(rastertriangles[i].normal) );
 		float a_prime = rastertriangles[i].normal.x / d;
 		float b_prime = rastertriangles[i].normal.y / d;
 		float c_prime = rastertriangles[i].normal.z / d;
 		float w = rastertriangles[i].w;
-
-		Uint8 rgba[4];
-		rgba[0] = (color & 0xFF000000) >> 24;
-		rgba[1] = (color & 0x00FF0000) >> 16;
-		rgba[2] = (color & 0x0000FF00) >> 8;
-		rgba[3] = (color & 0x000000FF);
-
-		for (int j = 1; j < 4; ++j)
-		{
-			rgba[j] = rgba[j] * rastertriangles[i].t;
-		}
-
-		color = (rgba[0] << 24) + (rgba[1] << 16) + (rgba[2] << 8) + rgba[3];
-
-		Draw::filltriangle(surface, x0, y0, x1, y1,x2, y2, w , a_prime, b_prime , c_prime , d ,ZBuffer, color);
 		
-		//Draw::drawtriangle(surface, x0, y0, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d,
-		//	ZBuffer,SDL_MapRGB(surface->format, 0, 0, 0));		//wrirefram colour to be black
+
+		
+
+		Draw::filltriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w , a_prime, b_prime , c_prime , d ,ZBuffer, rastertriangles[i].color);
+		
+		Draw::drawtriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,
+			ZBuffer,SDL_MapRGB(surface->format, 0, 0, 255));		//wrirefram colour to be black
 	}
 
 	rastertriangles.clear();
-	vertexnormbuffer.clear();
+	for (int i = 0; i < vertexnormbuffer.size(); ++i)
+	{
+		vertexnormbuffer[i] = { 0 ,0 ,0};
+	}
+
 	ZBuffer.clear();
+}
+
+void Pipeline::testfunc()
+{
 }
 
 
@@ -183,7 +200,7 @@ bool Pipeline::cullTriangle(triangle& tri, Vector3f& camerapos)
 	Vector3f triangleline1 = tri.points[1] - tri.points[0];
 	Vector3f triangleline2 = tri.points[2] - tri.points[0];
 	Vector3f triangleNormal = triangleline1.getCrossProduct(triangleline2);
-	tri.normal = triangleNormal;
+	tri.normal = triangleNormal.Normalize();
 	float n = triangleNormal.getDotProduct(tri.points[0] - camerapos);
 	
 	if (n < 0.0f) {
@@ -245,8 +262,13 @@ void Pipeline::setDiffuseLight(triangle& tri)
 	//Final Color = (Diffuse Light + Ambient Light) * Diffuse Color
 	
 	
-	double t = (0.4 + (1 * DiffuseLightDir.getNormalized().getDotProduct(tri.normal.getNormalized()))) ;		//assime ambietn coefficnet 0.5 for r g and b
+	double t =  DiffuseLightDir.getNormalized().getDotProduct(tri.normal) ;		//assime ambietn coefficnet 0.5 for r g and b
+	
 	if (t < 0.0) t = 0;
+	//else if (t < 0.2) t = 0.2;
+	//else if (t < 0.4) t = 0.4;
+	//else if (t < 0.6) t = 0.6;
+	//else if (t < 0.8) t = 0.8;
 	if (t > 1.0) t = 1;
 	tri.t = t;
 

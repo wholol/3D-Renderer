@@ -18,6 +18,8 @@ public:
 	void Render( mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer ,bool testforcull = true);	//should transform coordinates to space, and perform scan line conversion.
 
 	void Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,  Uint32 color,bool wireframe = true);
+
+	void testfunc();
 	
 private:
 
@@ -30,6 +32,7 @@ private:
 	std::vector<triangle> rastertriangles;
 	
 	std::vector<float> ZBuffer;
+	
 
 	/*lighting*/
 	Vector3f DiffuseLightDir = { 0.0f , 0.0f , -1.0f};	//to be set be user 

@@ -9,7 +9,7 @@ struct triangle
 	int index[3];	// index that correspods to the vertex points.
 	Vector2f textCoord[3];
 	Vector3f normal;
-	Vector3f color;
+	Uint32 color;
 	double t;		//for lighting
 
 	//homogenoues w value for the triangle

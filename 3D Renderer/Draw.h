@@ -190,10 +190,10 @@ private:
 				//z buffer here
 				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				double zpos_ndc = zpos_camspace_inv * w;
-				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-					ZBuffer[x + 800 * scanline] = zpos_ndc;
+				//if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+				//	ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, ZBuffer, color);
-				}
+				//}
 			}
 		}
 	}
@@ -229,10 +229,10 @@ private:
 				float zpos_camspace = 1 / ((a_prime * x) + (b_prime * scanline) + c_prime);
 				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				float zpos_ndc = zpos_camspace_inv * w;
-				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-					ZBuffer[x + 800 * scanline] = zpos_ndc;
+				//if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+				//	ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, ZBuffer, color);
-				}
+				//}
 			
 			}
 		}
