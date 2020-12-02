@@ -6,7 +6,7 @@ class Draw {
 
 public:
 
-	static void putpixel(SDL_Surface *surface, int x, int y, std::vector<float>& ZBuffer,  Uint32 pixel = 0xFFFFFF)
+	static void putpixel(SDL_Surface *surface, int x, int y,  Uint32 pixel = 0xFFFFFF)
 	{
 			int bpp = surface->format->BytesPerPixel;
 			/* Here p is the address to the pixel we want to set */
@@ -39,6 +39,76 @@ public:
 				break;
 			}
 	}
+
+	//phong fill
+
+
+	static void filltriangle_p(SDL_Surface* surface, int p1_x, int p1_y, int p2_x, int p2_y, int p3_x, int p3_y, float w, float a_prime, float b_prime, float c_prime,
+		float d, std::vector<float>& ZBuffer, std::vector<Vector3f>& vertexnormbuffer, Vector3f p1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, Uint32 color = 0xFFFFFF)
+
+		/*fill the triangle such that :
+		 p1 is the top vertex, 2 is the middle vertex, p3 is the bottom vertex
+		*/
+	{
+		if (p2_y < p1_y) {
+			std::swap(p2_y, p1_y);
+			std::swap(p2_x, p1_x);
+			std::swap(v2_vertex, p1_vertex);
+		}
+
+		if (p3_y < p1_y) {
+			std::swap(p3_y, p1_y);
+			std::swap(p3_x, p1_x);
+			std::swap(v3_vertex, p1_vertex);
+		}
+
+		if (p3_y < p2_y) {
+			std::swap(p3_y, p2_y);
+			std::swap(p3_x, p2_x);
+			std::swap(v3_vertex, v2_vertex);
+		}
+
+		/*if it is only a bottom flat triangle*/
+		if (p2_y == p3_y)
+		{
+			if (p2_x > p3_x) {
+				std::swap(p2_x, p3_x);
+				std::swap(v2_vertex, v3_vertex);
+			}
+			fillflatbottomtriangle_p(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+		}
+
+		//top triangle
+		else if (p1_y == p2_y) {
+			if (p1_x > p2_x) {
+				std::swap(p1_x, p2_x);
+				std::swap(p1_vertex, v2_vertex);
+			}
+			fillflattoptriangle_p(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+		}
+
+		else {
+			int x4 = p1_x + (float)((float)(p2_y - p1_y) / (float)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
+
+			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
+			//note that p2y is the middle, and it will be used for both sides).
+			fillflatbottomtriangle_p(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+			fillflattoptriangle_p(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+
+			/*
+			if (x4 > p2_x) {		//right side major triangle
+				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex,color);
+			}
+
+			else {	//left side major triangle
+				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);	//flat bottom
+				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);		//flat top
+				}
+				*/
+		}
+	}
+
 
 	static void filltriangle(SDL_Surface* surface, int p1_x, int p1_y, int p2_x, int p2_y, int p3_x, int p3_y,float w, float a_prime, float b_prime, float c_prime, 
 		float d , std::vector<float>& ZBuffer,std::vector<Vector3f>& vertexnormbuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color, Uint32 color = 0xFFFFFF)
@@ -81,6 +151,7 @@ public:
 				std::swap(p1_x, p2_x);
 				std::swap(p1_color, p2_color);
 			}
+
 			fillflattoptriangle(surface,p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
 		}
 
@@ -94,13 +165,13 @@ public:
 			
 			/*
 			if (x4 > p2_x) {		//right side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
-				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color,color);
+				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
+				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex,color);
 			}
 
 			else {	//left side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color,p3_color,color);	//flat bottom
-				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color,p3_color,color);		//flat top
+				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);	//flat bottom
+				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);		//flat top
 				}
 				*/
 		}
@@ -153,26 +224,25 @@ public:
 		}
 	}
 
-	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>& ZBuffer,Uint32 color = 0)
+	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2,float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer,Uint32 color = 0)
 	{
-		drawline(surface, x0, y0, x1, y1,  w, a_prime, b_prime, c_prime, d, ZBuffer, color);
-		drawline(surface, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
-		drawline(surface, x0, y0, x2, y2, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
-									
+		drawline(surface, x0, y0, x1, y1,  w,  a_prime, b_prime, c_prime, d ,ZBuffer, color);
+		drawline(surface, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d ,  ZBuffer, color);
+		drawline(surface, x0, y0, x2, y2, w, a_prime, b_prime, c_prime, d , ZBuffer, color);
 	}
 
-	static void drawline(SDL_Surface* surface, int x0, int y0, int x1, int y1, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>& ZBuffer, Uint32 color = 0xFFFFFF)
+	static void drawline(SDL_Surface* surface, int x0, int y0, int x1, int y1, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer, Uint32 color = 0xFFFFFF)
 	{
 		for (float t = 0.; t < 1.; t += .01) {
-			
 			int x = x0 + (x1 - x0)*t;
 			int y = y0 + (y1 - y0)*t;
 			float zpos_camspace_inv = ((a_prime * x) + (b_prime * y) + c_prime);
 			float zpos_ndc = zpos_camspace_inv * w;
+
 			if (ZBuffer[x + 800 * y] > zpos_ndc) {
 				ZBuffer[x + 800 * y] = zpos_ndc;
-				putpixel(surface, x, y, ZBuffer, color);
-			}	
+				putpixel(surface, x, y, color);
+			}
 		}
 	}
 
@@ -210,6 +280,7 @@ private:
 		}
 
 		Uint8  Ip[4] , Ib[4], Ia[4];
+
 			for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 				int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
 				int px2 = slope_2 * (float)(scanline - p2_y) + p4_x;
@@ -219,8 +290,8 @@ private:
 
 				//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
 				//vertex side intensity
-				//Ia = (p1_color * (scanline - p2_y) + p2_color * (p1_y - scanline)) / (p1_y - p2_y);
-				if (p1_y - p2_y) {
+				//Ia = (p1_vertex * (scanline - p2_y) + v2_vertex * (p1_y - scanline)) / (p1_y - p2_y);
+				if ((p1_y - p2_y) != 0) {
 					double t1 = (double)(scanline - p2_y) / (double)(p1_y - p2_y);
 					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p2_y);
 					Ia[1] = ((p1_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
@@ -228,10 +299,10 @@ private:
 					Ia[3] = (p1_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
 				}
 
-				if (p1_y - p3_y) {
+				if ((p1_y - p3_y) != 0) {
 					double t1 = (double)(scanline - p3_y) / (double)(p1_y - p3_y);
 					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p3_y);
-					//Ib = (p1_color * (scanline - p3_y) + p3_color * (p1_y - scanline)) / (p1_y - p3_y);
+					//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
 				
 					Ib[1] = ((p1_color & 0x00FF0000) >> 16) *  t1 + ((p3_color & 0x00FF0000) >> 16) * t2;
 					Ib[2] = ((p1_color & 0x0000FF00) >> 8) *  t1 + ((p3_color & 0x0000FF00) >> 8) *  t2;
@@ -245,6 +316,11 @@ private:
 
 				for (int x = xStart; x <= xEnd; ++x) {
 
+					float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+					float zpos_ndc = zpos_camspace_inv * w;
+
+					if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+						ZBuffer[x + 800 * scanline] = zpos_ndc;
 					if ((xStart - xEnd) == 0)	//if the point is at the vertex
 					{
 						Ip[0] = (p1_color & 0xFF000000) >> 24;	
@@ -264,13 +340,8 @@ private:
 						Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
 					}
 
-					//z buffer here
-					float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
-					double zpos_ndc = zpos_camspace_inv * w;
-					if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-						Uint32 goroudcol = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
-						ZBuffer[x + 800 * scanline] = zpos_ndc;
-						putpixel(surface, x, scanline, ZBuffer, goroudcol);
+					//Uint32 goroudcol = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
+					putpixel(surface, x, scanline, (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3]);
 					}
 				}
 			}
@@ -327,8 +398,8 @@ private:
 			if (p3_y - p1_y) {
 				double t1 = (double)(scanline - p1_y) / (double)(p3_y - p1_y);
 				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p1_y);
-				//Ib = (p1_color * (scanline - p3_y) + p3_color * (p1_y - scanline)) / (p1_y - p3_y);
-
+				
+				//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
 				Ib[1] = ((p3_color & 0x00FF0000) >> 16) *  t1 + ((p1_color & 0x00FF0000) >> 16) * t2;
 				Ib[2] = ((p3_color & 0x0000FF00) >> 8) *  t1 + ((p1_color & 0x0000FF00) >> 8) *  t2;
 				Ib[3] = (p3_color & 0x000000FF) *  t1 + (p1_color & 0x000000FF) *  t2;
@@ -339,8 +410,12 @@ private:
 				std::swap(Ia, Ib);
 			}
 
-
 			for (int x = xStart; x <= xEnd; ++x) {
+
+				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+				float zpos_ndc = zpos_camspace_inv * w;
+			if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+				ZBuffer[x + 800 * scanline] = zpos_ndc;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the vertex
 				{
@@ -360,16 +435,215 @@ private:
 					Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
 					Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
 				}
-
-				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
-				float zpos_ndc = zpos_camspace_inv * w;
-				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
-					Uint32 goroud = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
-					ZBuffer[x + 800 * scanline] = zpos_ndc;
-					putpixel(surface, x, scanline, ZBuffer, color);
-				}
+				putpixel(surface, x, scanline, (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3]);
+			}
 			
 			}
 		}
 	}
+
+	static void fillflatbottomtriangle_p(SDL_Surface* surface, int p1_x, int p1_y, int p2_x, int p2_y, int p4_x, int p3_y, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer,
+		std::vector<Vector3f>& vertexnormbuffer, Vector3f& p1_vertex, Vector3f& p2_vertex, Vector3f& p3_vertex,
+		Uint32 color = 0xFFFFFF)
+	{
+		//by default:
+		//p1_x , p1_y = top of flat botom triangle
+		//p2_x , p2_y = end of flat bottom triangle (vertex side)
+		//p4_x , p2_y = end of flat bottom triangle (non vertex side)
+		//p3_y = for end of overall triangle - used for goroud interpolation of colour intensity 
+
+		bool left_side_major = false;
+
+		if (p2_x > p4_x)	//if the triangle is left side major, i.e. non vertex side xpos < vertex side xpos
+		{
+			left_side_major = true;
+			std::swap(p4_x, p2_x);
+		}
+
+		int dy = p2_y - p1_y;
+		int dx1 = p2_x - p1_x;
+		int dx2 = p4_x - p1_x;
+
+		float slope_1 = 0; float slope_2 = 0;
+
+		if (dy) {
+			slope_1 = (float)dx1 / (float)dy;
+		}
+
+		if (dy) {
+			slope_2 = (float)dx2 / (float)dy;
+		}
+
+	
+		Vector3f Vp, Vb, Va;
+		Uint8 light_src_rgba[4], final_light_rgba[4];
+		Uint32 final_light;
+		light_src_rgba[0] = (color & 0xFF000000) >> 24;
+		light_src_rgba[1] = (color & 0x00FF0000) >> 16;
+		light_src_rgba[2] = (color & 0x0000FF00) >> 8;
+		light_src_rgba[3] = (color & 0x000000FF);
+
+		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
+			int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
+			int px2 = slope_2 * (float)(scanline - p2_y) + p4_x;
+
+			const int xStart = (int)px1;
+			const int xEnd = (int)px2;
+
+			//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
+			//vertex side intensity
+			//Ia = (p1_vertex * (scanline - p2_y) + v2_vertex * (p1_y - scanline)) / (p1_y - p2_y);
+			if ((p1_y - p2_y) != 0) {
+				double t1 = (double)(scanline - p2_y) / (double)(p1_y - p2_y);
+				double t2 = (double)(p1_y - scanline) / (double)(p1_y - p2_y);
+				Va = p1_vertex * t1 + p2_vertex * t2;
+			}
+
+			if ((p1_y - p3_y) != 0) {
+				double t1 = (double)(scanline - p3_y) / (double)(p1_y - p3_y);
+				double t2 = (double)(p1_y - scanline) / (double)(p1_y - p3_y);
+				//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
+				Vb = p1_vertex * t1 + p3_vertex * t2;
+			}
+
+			if (left_side_major)
+			{
+				std::swap(Va, Vb);
+			}
+
+			for (int x = xStart; x <= xEnd; ++x) {
+
+				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+				float zpos_ndc = zpos_camspace_inv * w;
+
+				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+					ZBuffer[x + 800 * scanline] = zpos_ndc;
+					if ((xStart - xEnd) == 0)	//if the point is at the vertex
+					{
+						Vp = p1_vertex;
+					}
+
+					else
+					{
+						double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
+						double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
+						//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
+						Vp = Va * t1 + Vb * t2;
+					}
+
+					double t = Vp.getNormalized().getDotProduct(Vector3f(0, 0, -1).getNormalized());
+
+					for (int j = 1; j < 4; ++j)
+					{
+						final_light_rgba[j] = light_src_rgba[j] * t;
+					}
+
+					final_light = (final_light_rgba[0] << 24) + (final_light_rgba[1] << 16) + (final_light_rgba[2] << 8) + final_light_rgba[3];
+
+					//Uint32 goroudcol = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
+					putpixel(surface, x, scanline, final_light);
+				}
+			}
+		}
+	}
+
+	static void fillflattoptriangle_p(SDL_Surface* surface, int p2_x, int p2_y, int p4_x, int p1_y, int p3_x, int p3_y, float w, float a_prime, float b_prime, float c_prime, float d, std::vector<float>&  ZBuffer,
+		std::vector<Vector3f>& vertexnormbuffer, Vector3f& p1_vertex, Vector3f& p2_vertex, Vector3f& p3_vertex,
+		Uint32 color = 0xFFFFFF)
+	{
+		//by default:
+		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
+		//p4_x , p2_y = end right flat top triangle 
+		//p3_x , p3_y = end of flat top triangle 
+		//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
+
+		bool left_side_major = false;
+		if (p2_x > p4_x)
+		{
+			left_side_major = true;
+			std::swap(p2_x, p4_x);
+		}
+
+		int dy = p3_y - p2_y;
+		int dx1 = p3_x - p2_x;
+		int dx2 = p3_x - p4_x;
+
+		float slope_1 = 0; float slope_2 = 0;
+
+		if (dy) {
+			slope_1 = (float)dx1 / (float)dy;
+		}
+
+		if (dy) {
+			slope_2 = (float)dx2 / (float)dy;
+		}
+
+		Vector3f Vp, Vb, Va;
+		Uint8 light_src_rgba[4], final_light_rgba[4];
+		Uint32 final_light;
+		light_src_rgba[0] = (color & 0xFF000000) >> 24;
+		light_src_rgba[1] = (color & 0x00FF0000) >> 16;
+		light_src_rgba[2] = (color & 0x0000FF00) >> 8;
+		light_src_rgba[3] = (color & 0x000000FF);
+
+		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
+			int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
+			int px2 = slope_2 * (float)(scanline - p3_y) + p3_x;
+
+			const int xStart = (int)px1;
+			const int xEnd = (int)px2;
+
+			if (p3_y - p2_y) {
+				double t1 = (double)(scanline - p2_y) / (double)(p3_y - p2_y);
+				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p2_y);
+				Va = p3_vertex * t1 + p2_vertex * t2;
+			}
+
+			if (p3_y - p1_y) {
+				double t1 = (double)(scanline - p1_y) / (double)(p3_y - p1_y);
+				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p1_y);
+				Vb = p1_vertex * t1 + p3_vertex * t2;
+			}
+
+			if (left_side_major)
+			{
+				std::swap(Va, Vb);
+			}
+
+			for (int x = xStart; x <= xEnd; ++x) {
+
+				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+				float zpos_ndc = zpos_camspace_inv * w;
+				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+					ZBuffer[x + 800 * scanline] = zpos_ndc;
+
+					if ((xStart - xEnd) == 0)	//if the point is at the vertex
+					{
+						Vp = p1_vertex;
+					}
+
+					else
+					{
+						double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
+						double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
+
+						Vp =  Va * t1 + Vb * t2;
+					}
+					//clacualte colour intensity with vp
+					//directional light
+					double t = Vp.getNormalized().getDotProduct(Vector3f(0, 0, -1).getNormalized());
+					
+					for (int j = 1; j < 4; ++j)
+					{
+						final_light_rgba[j] = light_src_rgba[j] * t;
+					}
+
+					final_light = (final_light_rgba[0] << 24) + (final_light_rgba[1] << 16) + (final_light_rgba[2] << 8) + final_light_rgba[3];
+					putpixel(surface, x, scanline, final_light);
+				}
+
+			}
+		}
+	}
+
 };

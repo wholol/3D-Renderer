@@ -152,6 +152,7 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		{
 			p2_vertex_t = 0.0;
 		}
+
 		double p3_vertex_t = DiffuseLightDir.getNormalized().getDotProduct(vertexnormbuffer[p3_index].getNormalized());
 		if (p3_vertex_t < 0)
 		{
@@ -208,17 +209,27 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		float c_prime = rastertriangles[i].normal.z / d;
 		float w = rastertriangles[i].w;
 
-		Draw::filltriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w , a_prime, b_prime , c_prime , d ,ZBuffer, vertexnormbuffer , rastertriangles[i].p1_color, 
-			rastertriangles[i].p2_color, rastertriangles[i].p3_color, rastertriangles[i].color);
+		//Draw::filltriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w , a_prime, b_prime , c_prime , d ,ZBuffer, vertexnormbuffer , rastertriangles[i].p1_color, 
+		//	rastertriangles[i].p2_color, rastertriangles[i].p3_color, color);
+
+		int p1_index = rastertriangles[i].index[0];
+		int p2_index = rastertriangles[i].index[1];
+		int p3_index = rastertriangles[i].index[2];
+
+		Vector3f normal_p1 = vertexnormbuffer[p1_index].getNormalized();
+		Vector3f normal_p2 = vertexnormbuffer[p2_index].getNormalized();
+		Vector3f normal_p3 = vertexnormbuffer[p3_index].getNormalized();
+
+		Draw::filltriangle_p(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, normal_p1,
+			normal_p2, normal_p3,color);
 		
-		Draw::drawtriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,
-			ZBuffer,SDL_MapRGB(surface->format, 0, 0, 255));		//wrirefram colour to be black
+		//Draw::drawtriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, SDL_MapRGB(surface->format, 0,0, 0));		//wrirefram colour to be black
 	}
 
 	rastertriangles.clear();
 	for (int i = 0; i < vertexnormbuffer.size(); ++i)
 	{
-		vertexnormbuffer[i] = { 0 ,0 ,0};
+		vertexnormbuffer[i] = { 0.0f ,0.0f ,0.0f };
 	}
 
 	ZBuffer.clear();

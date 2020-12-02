@@ -52,17 +52,16 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 		//Bottom
 		{Vector3f(1 ,0 ,1) , Vector3f(0 ,0 ,1) , Vector3f(0 ,0 ,0)},
 		{Vector3f(1 ,0 ,1) , Vector3f(0 ,0 ,0) , Vector3f(1 ,0 ,0)},
-
 	};
 	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
-	model.loadFromFile("data.obj");
+	model.loadFromFile("teapot.obj");
 
 }
 
 void Application::Render()
 {
-	Mat3f transform = Mat3f::Translate(0, 0, 8);
+	Mat3f transform = Mat3f::Translate(0, 0, 5);
 	transform = transform * Mat3f::RotateZ(rotateY);
 	transform = transform * Mat3f::RotateX(rotateX);
 		
@@ -74,7 +73,7 @@ void Application::Render()
 	rotateX += 0.001;
 	rotateY += 0.001;
 	
-	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 255, 255, 255));
+	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 156, 255));
 
 }
 
@@ -99,7 +98,6 @@ void Application::Update()
 		//lookDir = Mat3f::RotateY(fYaw) * lookDir;
 		
 	}
-	
 	
 	surface = SDL_GetWindowSurface(window);
 
