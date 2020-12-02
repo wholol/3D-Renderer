@@ -55,7 +55,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	};
 	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
-	model.loadFromFile("teapot.obj");
+	model.loadFromFile("sphere.obj");
 
 }
 
@@ -98,6 +98,12 @@ void Application::Update()
 		//lookDir = Mat3f::RotateY(fYaw) * lookDir;
 		
 	}
+
+	if (kstate[SDL_SCANCODE_G]) {
+		pipeline.testfunc();
+
+	}
+
 	
 	surface = SDL_GetWindowSurface(window);
 

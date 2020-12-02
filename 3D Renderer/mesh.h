@@ -5,7 +5,8 @@
 
 struct triangle
 {
-	Vector3f points[3];			
+	Vector3f points[3];		
+	Vector3f worldpoints[3];
 	int index[3];	// index that correspods to the vertex points.
 	Vector2f textCoord[3];
 	Vector3f normal;

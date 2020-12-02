@@ -2,6 +2,7 @@
 #include "SDL.h"
 //FRAGMENT PART
 #include <algorithm>
+#include <iostream>
 class Draw {
 
 public:
@@ -279,7 +280,7 @@ private:
 			slope_2 = (float)dx2 / (float)dy;
 		}
 
-		Uint8  Ip[4] , Ib[4], Ia[4];
+		double  Ip[4] , Ib[4], Ia[4];
 
 			for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 				int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
@@ -334,14 +335,14 @@ private:
 						double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
 						double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
 						//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
-						Ip[0] = 0;	//alpha should always make it visible
+						Ip[0] = (Ia[0] * t1) + (Ib[0] * t2);
 						Ip[1] = (Ia[1] * t1) + (Ib[1] * t2);
 						Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
 						Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
 					}
 
 					//Uint32 goroudcol = (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3];
-					putpixel(surface, x, scanline, (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3]);
+					putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
 					}
 				}
 			}
@@ -378,7 +379,7 @@ private:
 			slope_2 = (float)dx2 / (float)dy;
 		}
 
-		Uint8  Ip[4], Ib[4], Ia[4];
+		double  Ip[4], Ib[4], Ia[4];
 
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
 			int px1 = slope_1 * (float)(scanline - p2_y) + p2_x;
@@ -414,6 +415,7 @@ private:
 
 				float zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				float zpos_ndc = zpos_camspace_inv * w;
+
 			if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
 				ZBuffer[x + 800 * scanline] = zpos_ndc;
 
@@ -430,12 +432,13 @@ private:
 					double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
 					double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
 					//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
-					Ip[0] = 0;	//alpha should always make it visible
+					Ip[0] = (Ia[0] * t1) + (Ib[0] * t2);
 					Ip[1] = (Ia[1] * t1) + (Ib[1] * t2);
 					Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
 					Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
 				}
-				putpixel(surface, x, scanline, (Ip[0] << 24) + (Ip[1] << 16) + (Ip[2] << 8) + Ip[3]);
+
+				putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
 			}
 			
 			}

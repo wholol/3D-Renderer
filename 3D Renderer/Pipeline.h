@@ -20,6 +20,8 @@ public:
 	void Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,  Uint32 color,bool wireframe = true);
 
 	void testfunc();
+
+	double specular_p1, specular_p2, specular_p3;
 	
 private:
 
@@ -36,10 +38,11 @@ private:
 
 	/*lighting*/
 	Vector3f DiffuseLightDir = { 0.0f , 0.0f , -1.0f};	//to be set be user 
+	Vector3f PointLightPos = { 0.0f , 0.0f , 0.0f };
 
 	//functions to be called in rednering pipeline
 	void ModeltoWorldTransform(triangle& original,triangle& output);
-	bool cullTriangle(triangle& tri,Vector3f& camerapos);
+	bool DontCullTriangle(triangle& tri,Vector3f& camerapos);
 	void WorldtoCameraTransform(triangle& tri);
 	void NDCTransform(triangle& tri);
 	void sortZDirection();
