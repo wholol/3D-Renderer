@@ -34,7 +34,7 @@ public:
 
 			if (line[0] == 'v')	//load vertex
 			{
-				Vector3<float> v;
+				Vector3f v;
 				v.setComponents(s);
 				verts.emplace_back(v);
 			}
@@ -84,13 +84,14 @@ public:
 		//load vertex buffer
 		for (int i = 0; i < attrib.vertices.size(); i += 3)
 		{
+			
 			vertexbuffer.push_back({ attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2] });
 		}
 
 		//initialize vertex nromal buffers
 		for (int i = 0; i < vertexbuffer.size(); ++i)
 		{
-			vertexnormbuffer.push_back({ 0 , 0 , 0 });
+			vertexnormbuffer.push_back({ 0.0 , 0.0 , 0.0 });
 		}
 
 		// Loop over shapes

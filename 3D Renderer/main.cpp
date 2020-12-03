@@ -1,4 +1,5 @@
 #define TINYOBJLOADER_IMPLEMENTATION 
+//#define TINYOBJLOADER_USE_DOUBLE
 #include "Application.h"
 #include "SDL.h"
 

@@ -9,7 +9,13 @@ public:
 	
 	Vector3() : x(0), y(0), z(0) {}
 	Vector3(T x, T y ,T z) : x(x), y(y), z(z) {}
-
+	Vector3& operator ()(T x, T y, T z)
+	{
+		this->x = x;
+		this->y = y;
+		this->z = z;
+		return *this;
+	}
 	Vector3& operator +=(const Vector3& other) 
 	{ 
 		this->x += other.x; this->y += other.y; this->z += other.z; return *this;

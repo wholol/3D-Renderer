@@ -33,7 +33,7 @@ private:
 	unsigned int ScreenHeight, ScreenWidth;
 	std::vector<triangle> rastertriangles;
 	
-	std::vector<float> ZBuffer;
+	std::vector<double> ZBuffer;
 	
 
 	/*lighting*/

@@ -24,7 +24,6 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	if (!window) {
 		throw std::runtime_error("window initialization failed.");
 	}
-
 	
 	surface = SDL_GetWindowSurface(window);
 	testpoints = //South
@@ -56,24 +55,23 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	//model.loadFromFile(testpoints, m);
 	//model.loadFromFile("teapot.obj", m);
 	model.loadFromFile("sphere.obj");
-
 }
 
 void Application::Render()
 {
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
-	transform = transform * Mat3f::RotateZ(rotateY);
-	transform = transform * Mat3f::RotateX(rotateX);
+	//transform = transform * Mat3f::RotateZ(rotateY);
+	//transform = transform * Mat3f::RotateX(rotateX);
 		
 	pipeline.setTransformations(transform);
 	pipeline.setCamera(cam, lookDir);
 	pipeline.setProjectionParams(90.0f, 0.1f, 1000.0f, screenheight, screenwidth);
 	pipeline.Render(m , model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 
-	rotateX += 0.001;
-	rotateY += 0.001;
+	rotateX += 0.002;
+	rotateY += 0.002;
 	
-	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 156, 255));
+	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 166, 255));
 
 }
 
@@ -81,27 +79,41 @@ void Application::Update()
 {
 	const Uint8 *kstate = SDL_GetKeyboardState(NULL);
 	
-	if (kstate[SDL_SCANCODE_RIGHT]) {
-		rotateY += 0.001;
+	if (kstate[SDL_SCANCODE_UP]) {
+		
+		cam.z += 0.1f;
 	}
 
+	if (kstate[SDL_SCANCODE_DOWN]) {
+		cam.z -= 0.1f;
+	}
 
-	if (kstate[SDL_SCANCODE_W]) {
-		fYaw += 0.0012f;
-		cam.y += 0.005f;
-		// = Mat3f::RotateZ(fYaw) * lookDir;
+	if (kstate[SDL_SCANCODE_D]) {
+		fYaw = 0.0f;
+		fYaw += 0.01f;
+		lookDir =  Mat3f::RotateY(fYaw) * lookDir;
 	}
 
 	if (kstate[SDL_SCANCODE_A]) {
-		fYaw -= 0.0002f;
-		cam.y -= 0.005f;
-		//lookDir = Mat3f::RotateY(fYaw) * lookDir;
+		fYaw = 0.0f;
+		fYaw -= 0.01f;
+		lookDir = Mat3f::RotateY(fYaw) * lookDir;
+	}
+	
+	if (kstate[SDL_SCANCODE_W]) {
+		
+		cam.y += 0.05f;
+		
+	}
+
+	if (kstate[SDL_SCANCODE_S]) {
+		
+		cam.y -= 0.05f;
 		
 	}
 
 	if (kstate[SDL_SCANCODE_G]) {
 		pipeline.testfunc();
-
 	}
 
 	
