@@ -89,7 +89,7 @@ public:
 
 
 	static void filltriangle(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p3_x, double p3_y,float w, double a_prime, double b_prime, double c_prime,
-		double d , std::vector<double>& ZBuffer,std::vector<Vector3f>& vertexnormbuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color, Uint32 color = 0xFFFFFF)
+		double d , std::vector<double>& ZBuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color, Uint32 color = 0xFFFFFF)
 	{
 		if (p2_y < p1_y) {		
 			std::swap(p2_y, p1_y);
@@ -109,15 +109,13 @@ public:
 			std::swap(p3_color, p2_color);
 		}
 
-		
-
 
 			double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
 			
 			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 			//note that p2y is the middle, and it will be used for both sides).
-			fillflatbottomtriangle(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
-			fillflattoptriangle(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_color, p2_color, p3_color, color);
+			fillflatbottomtriangle(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color, color);
+			fillflattoptriangle(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color, color);
 			
 			/*
 			if (x4 > p2_x) {		//right side major triangle
@@ -203,8 +201,8 @@ public:
 	}
 
 private:
-	static void fillflatbottomtriangle(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p4_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d , std::vector<double>&  ZBuffer,
-		std::vector<Vector3f>& vertexnormbuffer, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
+	static void fillflatbottomtriangle(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p4_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d , std::vector<double>& ZBuffer
+		, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
 		Uint32 color = 0xFFFFFF)
 	{
 		//by default:
@@ -302,7 +300,7 @@ private:
 	}
 
 	static void fillflattoptriangle(SDL_Surface* surface, double p2_x, double p2_y, double p4_x, double p1_y, double p3_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,
-		std::vector<Vector3f>& vertexnormbuffer, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
+		Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
 		Uint32 color = 0xFFFFFF)
 	{
 		//by default:
@@ -500,8 +498,11 @@ private:
 						Vp = Va * t1 + Vb * t2;
 					}
 
-					double t = Vp.getNormalized().getDotProduct(Vector3d(0, 0, -1).getNormalized());
-
+					double t = Vp.getNormalized().getDotProduct(Vector3d(0.0, 0.0, -1.0).getNormalized());
+					if (t < 0.0)
+					{
+						t = 0.0;
+					}
 					for (int j = 1; j < 4; ++j)
 					{
 						final_light_rgba[j] = light_src_rgba[j] * t;
@@ -610,8 +611,11 @@ private:
 					}
 					//clacualte colour intensity with vp
 					//directional light
-					double t = Vp.getNormalized().getDotProduct(Vector3d(0, 0, -1).getNormalized());
-					
+					double t = Vp.getNormalized().getDotProduct(Vector3d(0.0, 0.0, -1.0).getNormalized());
+					if (t < 0.0)
+					{
+						t = 0.0;
+					}
 					for (int j = 1; j < 4; ++j)
 					{
 						final_light_rgba[j] = light_src_rgba[j] * t;

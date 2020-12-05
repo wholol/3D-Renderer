@@ -50,5 +50,14 @@
     <ClInclude Include="Vector3.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Diffuse_type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSetup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light_Type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

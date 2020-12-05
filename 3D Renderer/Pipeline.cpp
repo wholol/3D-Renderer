@@ -25,6 +25,144 @@ void Pipeline::setTransformations(const Mat3f finalTransform)
 	ModelMat = finalTransform;
 }
 
+void Pipeline::setLightColor(const Uint32& lightcol)
+{
+	this->lightcol = lightcol;
+}
+
+void Pipeline::ComputeLighting(std::shared_ptr<Light> light, std::vector<triangle>& tris)
+{
+	Uint8 obj_col[4];
+	obj_col[0] = (lightcol & 0xFF000000) >> 24;
+	obj_col[1] = (lightcol & 0x00FF0000) >> 16;
+	obj_col[2] = (lightcol & 0x0000FF00) >> 8;
+	obj_col[3] = (lightcol & 0x000000FF);
+
+	Uint8 temp[4];	//temporary to modify colors
+	temp[0] = obj_col[0];
+	temp[1] = obj_col[1];
+	temp[2] = obj_col[2];
+	temp[3] = obj_col[3];
+
+	if (light->light_type == Light_Type::PointLight)
+	{
+		PointLightSetup& pl = dynamic_cast<PointLightSetup&>(*light);
+
+		if (pl.diffuse_type == Diffuse_Type::Gouraud_Shading || pl.diffuse_type == Diffuse_Type::Flat_Shading) {
+			for (auto& t : tris) {
+				for (int i = 0; i < 3; ++i)		//for each vertex
+				{
+					//ambient
+					double amb_k = pl.amb_constant;
+
+					//attenuation
+					Vector3f to_light = PointLightPos - t.worldpoints[i];
+					double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
+					double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
+					to_light.Normalize();	//normalize
+					//diffuse
+					double diff_k;
+					if (pl.diffuse_type == Diffuse_Type::Gouraud_Shading)
+					{
+						//gouraud
+						diff_k = std::max(0.0f , to_light.getNormalized().getDotProduct(t.v_normal[i].getNormalized()));
+					}
+					else {
+						//flat shading
+						diff_k = std::max(0.0f, to_light.getNormalized().getDotProduct(t.s_normal.getNormalized()));
+					}
+					
+					//specular
+					Vector3f ViewVec = camerapos - t.worldpoints[i];
+					Vector3f w = to_light * 2.0 * t.v_normal[i].getNormalized().getDotProduct(to_light);
+					Vector3f r = w - to_light;
+					double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
+					if (spec_k > 1.0f)
+					{
+						spec_k = 1.0f;
+					}
+
+					double f = (amb_k + attenuation * (diff_k + (spec_k * pl.spec_intensity)));
+					
+					for (int j = 1; j < 4; ++j)
+					{
+						int c = obj_col[j] * f;
+						if (c > 255) c = 255;
+						temp[j] = c;
+					}
+
+					if (pl.diffuse_type == Diffuse_Type::Gouraud_Shading) {
+						t.vertex_colors[i] = (temp[0] << 24) + (temp[1] << 16) + (temp[2] << 8) + temp[3];
+					}
+					else {
+						//flat shading
+						t.color = (temp[0] << 24) + (temp[1] << 16) + (temp[2] << 8) + temp[3];
+					}
+				}
+			}
+		}	
+	}
+
+	if (light->light_type == Light_Type::DirLight)
+	{
+		DirectionalLightSetup& dl = dynamic_cast<DirectionalLightSetup&>(*light);
+
+		if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading || dl.diffuse_type == Diffuse_Type::Flat_Shading) {
+			for (auto& t : tris) {
+				for (int i = 0; i < 3; ++i)		//for each vertex
+				{
+					//ambient
+					double amb_k = dl.amb_constant;
+
+					//attenuation
+					Vector3f to_light = PointLightPos - t.worldpoints[i];
+					double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
+
+					//diffuse
+					double diff_k;
+					if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading)
+					{
+						//gouraud
+						diff_k = PointLightPos.getNormalized().getDotProduct(t.v_normal[i].getNormalized());
+					}
+					else {
+						//flat shading
+						diff_k = PointLightPos.getNormalized().getDotProduct(t.s_normal.getNormalized());
+					}
+
+					//specular
+					Vector3f ViewVec = camerapos - t.worldpoints[i];
+					Vector3f w = to_light.getNormalized() * 2.0 * t.v_normal[i].getNormalized().getDotProduct(to_light);
+					Vector3f r = w - to_light;
+					double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), dl.spec_exponent));
+					if (spec_k > 1.0f)
+					{
+						spec_k = 1.0f;
+					}
+
+					double f = (amb_k + (diff_k + spec_k * dl.spec_intensity));
+
+					for (int j = 1; j < 4; ++j)
+					{
+						int c = obj_col[j] * f;
+						if (c > 255) c = 255;
+
+						obj_col[j] = c;
+					}
+
+					if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading) {
+						t.vertex_colors[i] = (obj_col[0] << 24) + (obj_col[1] << 16) + (obj_col[2] << 8) + obj_col[3];
+					}
+					else {
+						//flat shading
+						t.color = (obj_col[0] << 24) + (obj_col[1] << 16) + (obj_col[2] << 8) + obj_col[3];
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void Pipeline::setCamera(Vector3f& camerapos, Vector3f& lookDir)
 {
@@ -33,12 +171,10 @@ void Pipeline::setCamera(Vector3f& camerapos, Vector3f& lookDir)
 	this->camerapos = camerapos;
 }
 
-void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, bool testforcull)
+void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,bool testforcull)
 {
-	
 	for (int i = 0; i < indexbuffer.size(); i += 3)
 	{
-	
 		int a = indexbuffer[i];
 		int b = indexbuffer[i + 1];
 		int c = indexbuffer[i + 2];
@@ -54,75 +190,99 @@ void Pipeline::Render(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector
 
 		Vector3f line1 = p3 - p1;
 		Vector3f line2 = p2 - p1;
-		
+
 		vertexnormbuffer[a] += line2.getCrossProduct(line1);	//accumualte the normals for each vertex for specular lighting calcs
 		vertexnormbuffer[b] += line2.getCrossProduct(line1);
 		vertexnormbuffer[c] += line2.getCrossProduct(line1);
+	}
 
+	for (int i = 0; i < indexbuffer.size(); i += 3)
+	{
+		int a = indexbuffer[i];
+		int b = indexbuffer[i + 1];
+		int c = indexbuffer[i + 2];
+	
+		Vector3f p1 = vertexbuffer[a];
+		Vector3f p2 = vertexbuffer[b];
+		Vector3f p3 = vertexbuffer[c];
+
+		//model to world transform
+		p1 = ModelMat * p1;
+		p2 = ModelMat * p2;
+		p3 = ModelMat * p3;
+
+		//setup triangle params
 		triangle temp;
-		temp.normal = line2.getCrossProduct(line1).getNormalized();
+		Vector3f line1 = p3 - p1;
+		Vector3f line2 = p2 - p1;
+		temp.s_normal = line2.getCrossProduct(line1).getNormalized();
 		temp.points[0] = p1;
 		temp.points[1] = p2;
 		temp.points[2] = p3;
 		temp.worldpoints[0] = p1;
 		temp.worldpoints[1] = p2;
 		temp.worldpoints[2] = p3;
-		temp.index[0] = a;	
-		temp.index[1] = b;
-		temp.index[2] = c;
-
+		temp.v_normal[0] = vertexnormbuffer[a].Normalize();
+		temp.v_normal[1] = vertexnormbuffer[b].Normalize();
+		temp.v_normal[2] = vertexnormbuffer[c].Normalize();
+		
 		if (DontCullTriangle(temp, camerapos))			//if the triangle does not need to be culled, proceed
 		{
-			
 			WorldtoCameraTransform(temp);
 			setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
-			//clipping here
+			//TODO:clipping here
 			NDCTransform(temp);
 			ViewPortTransform(temp);
 			rastertriangles.emplace_back(temp);
 		}
 	}
-
-	
-	//vertex norm buffer completes calcualtions after the loop.
-	//Access vertex buffer manudally in frag sahder
-
-	//perform model to world transform first.
-	// for i .. i += 3 in index buffer 
-		
-	//covert to world coordiantes
-
-	//check culling
-	//if not cull
-
-		//generate temp vector3d for each vertex with i  
-			//calculate diffuse value + ambient  
-			//transform temp vec3d 
-			//output positino vectors and lighting
-				
-			//fragment shader
-				//contruct triangle with vector 3ds
-				//z buffering time...
-				//use i for coomputed vertex normal points for specular lighting..?
-				//get lighting color
 }
 
-void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color,bool wireframe)
+void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color, std::shared_ptr<Light> light, bool wireframe)
 {
-	
+	ComputeLighting(light, rastertriangles);	//compute the lighting for rastertriangles in geometry shader
+	if (light->diffuse_type == Diffuse_Type::Gouraud_Shading)
+	{
+		//draw call for gouraud
+		for (auto& t : rastertriangles)
+		{
+			double d = (t.points[0].getDotProduct(t.s_normal.getNormalized()));
+			double a_prime = t.s_normal.x / d;
+			double b_prime = t.s_normal.y / d;
+			double c_prime = t.s_normal.z / d;
+			double w = t.w;
+			Draw::filltriangle(surface,t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y, 
+				 w, a_prime, b_prime, c_prime, d, ZBuffer, t.vertex_colors[0], t.vertex_colors[1], t.vertex_colors[2], color);
+		}
+	}
+
+	else if (light->diffuse_type == Diffuse_Type::Flat_Shading)
+	{
+		//draw call for flat shading.
+	}
+	else if (light->light_type == Light_Type::PointLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
+	{
+		//draw call
+	}
+	else if (light->light_type == Light_Type::DirLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
+	{
+		//draw call
+	}
+#define test 0
+
+#if test
+	//get light type
+	//fif (light.type == DiffuseType::Gouraud_Shading)
+	//call draw call based on light type.
+	//phong has 2 cases = flat shading and point light draw calls!
+	Uint8 obj_col[4];
+	obj_col[0] = (color & 0xFF000000) >> 24;
+	obj_col[1] = (color & 0x00FF0000) >> 16;
+	obj_col[2] = (color & 0x0000FF00) >> 8;
+	obj_col[3] = (color & 0x000000FF);
 
 	for (int i = 0; i < rastertriangles.size(); ++i)
 	{
-		//extract rgba components of light colour
-		Uint8 obj_col[4];
-		
-		obj_col[0] = (color & 0xFF000000) >> 24;
-		obj_col[1] = (color & 0x00FF0000) >> 16;
-		obj_col[2] = (color & 0x0000FF00) >> 8;
-		obj_col[3] = (color & 0x000000FF);
-
-	
-
 		Uint8 diffuse_rgba[4];
 		Uint8 p1_vertex_rgba[4];
 		Uint8 p2_vertex_rgba[4];
@@ -152,9 +312,9 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		Vector3f ViewVector_p1 = camerapos - rastertriangles[i].worldpoints[0];
 		Vector3f ViewVector_p2 = camerapos - rastertriangles[i].worldpoints[1];
 		Vector3f ViewVector_p3 = camerapos - rastertriangles[i].worldpoints[2];
-		Vector3f w_p1 = to_light_p1.getNormalized()* 2.0f *rastertriangles[i].normal.getNormalized().getDotProduct(to_light_p1);
-		Vector3f w_p2 = to_light_p2.getNormalized() * 2.0f * rastertriangles[i].normal.getNormalized().getDotProduct(to_light_p2);
-		Vector3f w_p3 = to_light_p3.getNormalized() * 2.0f * rastertriangles[i].normal.getNormalized().getDotProduct(to_light_p3);
+		Vector3f w_p1 = to_light_p1.getNormalized()* 2.0f * rastertriangles[i].v_normal[0].getNormalized().getDotProduct(to_light_p1);
+		Vector3f w_p2 = to_light_p2.getNormalized() * 2.0f * rastertriangles[i].v_normal[1].getNormalized().getDotProduct(to_light_p2);
+		Vector3f w_p3 = to_light_p3.getNormalized() * 2.0f * rastertriangles[i].v_normal[2].getNormalized().getDotProduct(to_light_p3);
 
 		Vector3f R_p1 =  w_p1 - to_light_p1;
 		Vector3f R_p2 =  w_p2 - to_light_p2;
@@ -167,20 +327,17 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		{
 			specular_p1 = 1.0f;
 		}
-		float specular_p2 = std::max(0.0f, std::powf((ViewVector_p2.getNormalized().getDotProduct(R_p2.getNormalized())), shininess)  );
+		float specular_p2 = std::max(0.0f, std::powf((ViewVector_p2.getNormalized().getDotProduct(R_p2.getNormalized())), shininess));
 		if (specular_p2 > 1.0f)
 		{
 			specular_p2 = 1.0f;
 		}
-		float specular_p3 = std::max(0.0f, std::powf((ViewVector_p3.getNormalized().getDotProduct(R_p3.getNormalized())), shininess)  );
+		float specular_p3 = std::max(0.0f, std::powf((ViewVector_p3.getNormalized().getDotProduct(R_p3.getNormalized())), shininess));
 		if (specular_p3 > 1.0f)
 		{
 			specular_p3 = 1.0f;
 		}
 
-		this->specular_p1 = specular_p1;
-		this->specular_p2 = specular_p2;
-		this->specular_p3 = specular_p3;
 		//attenuation factor
 		//https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
 		const double a = 0.01f;
@@ -190,19 +347,19 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		const double attenuation_p2 = 1.0 / ((a * dist_p2 * dist_p2) + (b * dist_p2) + 1);
 		const double attenuation_p3 = 1.0 / ((a * dist_p3 * dist_p3) + (b * dist_p3) + 1);
 
-		double p1_vertex_t = to_light_p1.getNormalized().getDotProduct(vertexnormbuffer[p1_index].getNormalized());
+		double p1_vertex_t = to_light_p1.getNormalized().getDotProduct(rastertriangles[i].v_normal[0].getNormalized());
 		if (p1_vertex_t < 0.0)
 		{
 			p1_vertex_t = 0.0;
 		}
 
-		double p2_vertex_t = to_light_p2.getNormalized().getDotProduct(vertexnormbuffer[p2_index].getNormalized());
+		double p2_vertex_t = to_light_p2.getNormalized().getDotProduct(rastertriangles[i].v_normal[1].getNormalized());
 		if (p2_vertex_t < 0.0)
 		{
 			p2_vertex_t = 0.0;
 		}
 
-		double p3_vertex_t = to_light_p3.getNormalized().getDotProduct(vertexnormbuffer[p3_index].getNormalized());
+		double p3_vertex_t = to_light_p3.getNormalized().getDotProduct(rastertriangles[i].v_normal[2].getNormalized());
 		if (p3_vertex_t < 0.0)
 		{
 			p3_vertex_t = 0.0;
@@ -220,28 +377,15 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 			int c2 = obj_col[j] * (0.1 + attenuation_p2 * (  p2_vertex_t + specular_p2 * 20) );
 			int c3 = obj_col[j] * (0.1 + attenuation_p3 * (  p3_vertex_t + specular_p3 * 20) );
 
-			if (c1 > 255)
-			{
-				c1 = 255;
-			}
+			if (c1 > 255) c1 = 255;
 
-			if (c2 > 255)
-			{
-				c2 = 255;
-			}
+			if (c2 > 255) c2 = 255;
 
-			if (c3 > 255)
-			{
-				c3 = 255;
-			}
-
+			if (c3 > 255) c3 = 255;
+		
 			p1_vertex_rgba[j] = c1;		//indiviual diffuse colour output
 			p2_vertex_rgba[j] = c2;		//indiviual diffuse colour output
 			p3_vertex_rgba[j] = c3;		//indiviual diffuse colour output
-
-			//rastertriangles[i].p1_rgba[j] = p1_vertex_rgba[j];
-			//rastertriangles[i].p2_rgba[j] = p2_vertex_rgba[j];
-			//rastertriangles[i].p3_rgba[j] = p3_vertex_rgba[j];
 		}
 
 		Uint32 diffuse_color, p1_color, p2_color, p3_color;
@@ -269,30 +413,26 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		double p3_y = rastertriangles[i].points[2].y;
 
 		// plane equation parameters
-		double d = (rastertriangles[i].points[0].getDotProduct(rastertriangles[i].normal.getNormalized()));
-		double a_prime = rastertriangles[i].normal.x / d;
-		double b_prime = rastertriangles[i].normal.y / d;
-		double c_prime = rastertriangles[i].normal.z / d;
+		double d = (rastertriangles[i].points[0].getDotProduct(rastertriangles[i].s_normal.getNormalized()));
+		double a_prime = rastertriangles[i].s_normal.x / d;
+		double b_prime = rastertriangles[i].s_normal.y / d;
+		double c_prime = rastertriangles[i].s_normal.z / d;
 		double w = rastertriangles[i].w;
 
 		//Draw::drawtriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, SDL_MapRGB(surface->format, 255, 255, 0));		//wrirefram colour to be black
 
-		Draw::filltriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, rastertriangles[i].p1_color,
-			rastertriangles[i].p2_color, rastertriangles[i].p3_color, color);
+		//Draw::filltriangle(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, rastertriangles[i].p1_color,
+		//	rastertriangles[i].p2_color, rastertriangles[i].p3_color, color);
 
-		int p1_index = rastertriangles[i].index[0];
-		int p2_index = rastertriangles[i].index[1];
-		int p3_index = rastertriangles[i].index[2];
+		Vector3f normal_p1 = rastertriangles[i].v_normal[0];
+		Vector3f normal_p2 = rastertriangles[i].v_normal[1];
+		Vector3f normal_p3 = rastertriangles[i].v_normal[2];
 
-		Vector3f normal_p1 = vertexnormbuffer[p1_index].getNormalized();
-		Vector3f normal_p2 = vertexnormbuffer[p2_index].getNormalized();
-		Vector3f normal_p3 = vertexnormbuffer[p3_index].getNormalized();
-
-		//Draw::filltriangle_p(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, normal_p1,
-		//	normal_p2, normal_p3,color);
-
+		Draw::filltriangle_p(surface, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, normal_p1,
+			normal_p2, normal_p3,color);
 	}
 
+#endif
 	rastertriangles.clear();
 	for (int i = 0; i < vertexnormbuffer.size(); ++i)
 	{
@@ -304,8 +444,7 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 
 void Pipeline::testfunc()
 {
-	PointLightPos += {0.0f, 0.00f, 0.02f};
-	std::cout << specular_p1 << " " << specular_p2 << " " << specular_p3 << std::endl;
+	PointLightPos += {0.0f, 0.0f, 0.5f};
 }
 
 
@@ -318,7 +457,7 @@ void Pipeline::ModeltoWorldTransform(triangle& original,triangle& output)
 
 bool Pipeline::DontCullTriangle(triangle& tri, Vector3f& camerapos)
 {
-	float n = tri.normal.getDotProduct(tri.points[0] - camerapos);
+	float n = tri.s_normal.getDotProduct(tri.points[0] - camerapos);
 	
 	if (n < 0.0f) {
 		return true;
@@ -379,10 +518,15 @@ void Pipeline::setDiffuseLight(triangle& tri)
 	//Final Color = (Diffuse Light + Ambient Light) * Diffuse Color
 	
 	
-	double t =  DiffuseLightDir.getNormalized().getDotProduct(tri.normal.getNormalized()) ;		//assime ambietn coefficnet 0.5 for r g and b
+	double t =  DiffuseLightDir.getNormalized().getDotProduct(tri.s_normal.getNormalized()) ;		//assime ambietn coefficnet 0.5 for r g and b
 	
 	if (t < 0.0) t = 0;
 	if (t > 1.0) t = 1;
 	tri.t = t;
 
+}
+
+void Pipeline::setAmbientLight(double t)
+{
+	
 }

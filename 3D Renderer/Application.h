@@ -4,6 +4,7 @@
 #include "LoadModel.h"
 #include "Pipeline.h"
 #include "mesh.h"
+#include "LightSetup.h"
 
 class Application
 {
@@ -21,6 +22,8 @@ private:
 	SDL_Event event;
 	mesh m;
 	std::vector<triangle> testpoints;
+	std::shared_ptr<PointLightSetup> pl;		//point light setup
+	std::shared_ptr<DirectionalLightSetup> dl;	//direct light setup
 	Pipeline pipeline;
 	Vector3f lookDir = { 0, 0, 1 };
 	Vector3f cam = { 0 , 0, 0 };
