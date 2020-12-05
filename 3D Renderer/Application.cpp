@@ -57,11 +57,18 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	model.loadFromFile("sphere.obj");
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
-	pl->setAmbient(1.0f);
-	pl->setDiffuse(Diffuse_Type::Gouraud_Shading);
+	pl->setAmbient(0.1f);
+	pl->setDiffuse(Diffuse_Type::Flat_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
 	pl->setLightPos({ 0.0, 0.0, 0.0 });
 	pl->setSpecular(128.0f, 20.0f);
+
+
+	dl = std::make_shared<DirectionalLightSetup>();
+	dl->setAmbient(0.1f);
+	dl->setDiffuse(Diffuse_Type::Flat_Shading);
+	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
+	
 }
 
 void Application::Render()

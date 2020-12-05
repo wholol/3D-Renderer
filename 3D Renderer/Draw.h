@@ -40,23 +40,21 @@ public:
 				break;
 			}
 	}
-
+	
 	//phong fill
-
-
 	static void filltriangle_p(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p3_x, double p3_y, double w, double a_prime, double b_prime, double c_prime,
-		double d, std::vector<double>& ZBuffer, std::vector<Vector3f>& vertexnormbuffer, Vector3f p1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, Uint32 color = 0xFFFFFF)
+		double d, std::vector<double>& ZBuffer, std::vector<Vector3f>& vertexnormbuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, Uint32 color = 0xFFFFFF)
 	{
 		if (p2_y < p1_y) {
 			std::swap(p2_y, p1_y);
 			std::swap(p2_x, p1_x);
-			std::swap(v2_vertex, p1_vertex);
+			std::swap(v2_vertex, v1_vertex);
 		}
 
 		if (p3_y < p1_y) {
 			std::swap(p3_y, p1_y);
 			std::swap(p3_x, p1_x);
-			std::swap(v3_vertex, p1_vertex);
+			std::swap(v3_vertex, v1_vertex);
 		}
 
 		if (p3_y < p2_y) {
@@ -65,31 +63,17 @@ public:
 			std::swap(v3_vertex, v2_vertex);
 		}
 
+		double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
 
-			double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
-
-			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
-			//note that p2y is the middle, and it will be used for both sides).
-			fillflattoptriangle_p(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
-			fillflatbottomtriangle_p(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
-			
-
-			/*
-			if (x4 > p2_x) {		//right side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
-				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex,color);
-			}
-
-			else {	//left side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);	//flat bottom
-				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);		//flat top
-				}
-				*/
+		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
+		//note that p2y is the middle, and it will be used for both sides).
+		fillflattoptriangle_p(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, v1_vertex, v2_vertex, v3_vertex, color);
+		fillflatbottomtriangle_p(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, v1_vertex, v2_vertex, v3_vertex, color);
 	}
 
 
-	static void filltriangle(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p3_x, double p3_y,float w, double a_prime, double b_prime, double c_prime,
-		double d , std::vector<double>& ZBuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color, Uint32 color = 0xFFFFFF)
+	static void filltriangle_gouraud(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p3_x, double p3_y,float w, double a_prime, double b_prime, double c_prime,
+		double d , std::vector<double>& ZBuffer,Uint32 p1_color, Uint32 p2_color, Uint32 p3_color)
 	{
 		if (p2_y < p1_y) {		
 			std::swap(p2_y, p1_y);
@@ -109,26 +93,36 @@ public:
 			std::swap(p3_color, p2_color);
 		}
 
-
-			double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
+		double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
 			
-			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
-			//note that p2y is the middle, and it will be used for both sides).
-			fillflatbottomtriangle(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color, color);
-			fillflattoptriangle(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color, color);
-			
-			/*
-			if (x4 > p2_x) {		//right side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex, color);
-				fillflattoptriangle(surface,p2_x, p2_y, x4, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d,ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex, v3_vertex,color);
-			}
+		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
+		//note that p2y is the middle, and it will be used for both sides).
+		fillflatbottomtriangle_gouraud(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color);
+		fillflattoptriangle_gouraud(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, p1_color, p2_color, p3_color);
+	}
 
-			else {	//left side major triangle
-				fillflatbottomtriangle(surface,p1_x, p1_y, x4, p2_y, p2_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);	//flat bottom
-				fillflattoptriangle(surface,x4, p2_y, p2_x, p2_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, p1_vertex, v2_vertex,v3_vertex,color);		//flat top
-				}
-				*/
-		
+	static void filltriangle_flat(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p3_x, double p3_y, float w, double a_prime, double b_prime, double c_prime,
+		double d, std::vector<double>& ZBuffer, Uint32 color)
+	{
+		if (p2_y < p1_y) {
+			std::swap(p2_y, p1_y);
+			std::swap(p2_x, p1_x);
+		}
+
+		if (p3_y < p1_y) {
+			std::swap(p3_y, p1_y);
+			std::swap(p3_x, p1_x);
+		}
+
+		if (p3_y < p2_y) {
+			std::swap(p3_y, p2_y);
+			std::swap(p3_x, p2_x);
+		}
+
+		double x4 = p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
+
+		fillflatbottomtriangle_flat(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
+		fillflattoptriangle_flat(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, color);
 	}
 
 	static void filltriangleTex(SDL_Surface* surface, SDL_Texture *texture, int u0, int v0, int u1, int v1,int u2,int v2, std::vector<double>& ZBuffer, Uint32 color = 0xFFFFFF)
@@ -201,9 +195,8 @@ public:
 	}
 
 private:
-	static void fillflatbottomtriangle(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p4_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d , std::vector<double>& ZBuffer
-		, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
-		Uint32 color = 0xFFFFFF)
+	static void fillflatbottomtriangle_gouraud(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p4_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d , std::vector<double>& ZBuffer
+		, Uint32 p1_color, Uint32 p2_color,Uint32 p3_color)
 	{
 		//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -299,9 +292,8 @@ private:
 			}
 	}
 
-	static void fillflattoptriangle(SDL_Surface* surface, double p2_x, double p2_y, double p4_x, double p1_y, double p3_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,
-		Uint32 p1_color, Uint32 p2_color,Uint32 p3_color,
-		Uint32 color = 0xFFFFFF)
+	static void fillflattoptriangle_gouraud(SDL_Surface* surface, double p2_x, double p2_y, double p4_x, double p1_y, double p3_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,
+		Uint32 p1_color, Uint32 p2_color,Uint32 p3_color)
 	{
 		//by default:
 		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
@@ -388,10 +380,108 @@ private:
 					Ip[2] = (Ia[2] * t1) + (Ib[2] * t2);
 					Ip[3] = (Ia[3] * t1) + (Ib[3] * t2);
 				}
-
 				putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
 			}
-			
+			}
+		}
+	}
+
+	static void fillflattoptriangle_flat(SDL_Surface* surface, double p2_x, double p2_y, double p4_x, double p1_y, double p3_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,
+		Uint32 color)
+	{
+		//by default:
+		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
+		//p4_x , p2_y = end right flat top triangle 
+		//p3_x , p3_y = end of flat top triangle 
+		//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
+
+		bool left_side_major = false;
+		if (p2_x > p4_x)
+		{
+			left_side_major = true;
+			std::swap(p2_x, p4_x);
+		}
+
+		double dy = p3_y - p2_y;
+		double dx1 = p3_x - p2_x;
+		double dx2 = p3_x - p4_x;
+
+		double slope_1 = 0; double slope_2 = 0;
+
+		if (dy) {
+			slope_1 = dx1 / dy;
+		}
+
+		if (dy) {
+			slope_2 = dx2 / dy;
+		}
+
+		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
+			double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
+			double px2 = slope_2 * (double)(scanline - p3_y) + (double)p3_x;
+
+			const int xStart = (int)px1;
+			const int xEnd = (int)px2;
+
+			for (int x = xStart; x <= xEnd; ++x) {
+
+				double zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+				double zpos_ndc = zpos_camspace_inv * w;
+
+				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+					ZBuffer[x + 800 * scanline] = zpos_ndc;
+					putpixel(surface, x, scanline, color);
+				}
+
+			}
+		}
+	}
+
+	static void fillflatbottomtriangle_flat(SDL_Surface* surface, double p1_x, double p1_y, double p2_x, double p2_y, double p4_x, double p3_y, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>& ZBuffer
+		,Uint32 color)
+	{
+		//by default:
+		//p1_x , p1_y = top of flat botom triangle
+		//p2_x , p2_y = end of flat bottom triangle (vertex side)
+		//p4_x , p2_y = end of flat bottom triangle (non vertex side)
+		//p3_y = for end of overall triangle - used for goroud interpolation of colour intensity 
+
+		bool left_side_major = false;
+
+		if (p2_x > p4_x)	//if the triangle is left side major, i.e. non vertex side xpos < vertex side xpos
+		{
+			left_side_major = true;
+			std::swap(p4_x, p2_x);
+		}
+
+		double dy = p2_y - p1_y;
+		double dx1 = p2_x - p1_x;
+		double dx2 = p4_x - p1_x;
+
+		double slope_1 = 0; double slope_2 = 0;
+
+		if (dy) {
+			slope_1 = dx1 / dy;
+		}
+
+		if (dy) {
+			slope_2 = dx2 / dy;
+		}
+
+		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
+			double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
+			double px2 = slope_2 * (double)(scanline - p2_y) + (double)p4_x;
+			const int xStart = (int)px1;
+			const int xEnd = (int)px2;
+
+			for (int x = xStart; x <= xEnd; ++x) {
+
+				double zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
+				double zpos_ndc = zpos_camspace_inv * w;
+				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
+					ZBuffer[x + 800 * scanline] = zpos_ndc;
+					putpixel(surface, x, scanline, color);
+				}
 			}
 		}
 	}

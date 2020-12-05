@@ -77,6 +77,7 @@ void Pipeline::ComputeLighting(std::shared_ptr<Light> light, std::vector<triangl
 					Vector3f w = to_light * 2.0 * t.v_normal[i].getNormalized().getDotProduct(to_light);
 					Vector3f r = w - to_light;
 					double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
+
 					if (spec_k > 1.0f)
 					{
 						spec_k = 1.0f;
@@ -114,48 +115,34 @@ void Pipeline::ComputeLighting(std::shared_ptr<Light> light, std::vector<triangl
 					//ambient
 					double amb_k = dl.amb_constant;
 
-					//attenuation
-					Vector3f to_light = PointLightPos - t.worldpoints[i];
-					double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
-
 					//diffuse
 					double diff_k;
 					if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading)
 					{
 						//gouraud
-						diff_k = PointLightPos.getNormalized().getDotProduct(t.v_normal[i].getNormalized());
+						diff_k = std::max(0.0f, DiffuseLightDir.getNormalized().getDotProduct(t.v_normal[i].getNormalized()));
 					}
 					else {
 						//flat shading
-						diff_k = PointLightPos.getNormalized().getDotProduct(t.s_normal.getNormalized());
+						diff_k = std::max(0.0f, DiffuseLightDir.getNormalized().getDotProduct(t.s_normal.getNormalized()));
 					}
 
-					//specular
-					Vector3f ViewVec = camerapos - t.worldpoints[i];
-					Vector3f w = to_light.getNormalized() * 2.0 * t.v_normal[i].getNormalized().getDotProduct(to_light);
-					Vector3f r = w - to_light;
-					double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), dl.spec_exponent));
-					if (spec_k > 1.0f)
-					{
-						spec_k = 1.0f;
-					}
-
-					double f = (amb_k + (diff_k + spec_k * dl.spec_intensity));
+					double f = amb_k  + diff_k;
 
 					for (int j = 1; j < 4; ++j)
 					{
 						int c = obj_col[j] * f;
 						if (c > 255) c = 255;
 
-						obj_col[j] = c;
+						temp[j] = c;
 					}
 
 					if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading) {
-						t.vertex_colors[i] = (obj_col[0] << 24) + (obj_col[1] << 16) + (obj_col[2] << 8) + obj_col[3];
+						t.vertex_colors[i] = (temp[0] << 24) + (temp[1] << 16) + (temp[2] << 8) + temp[3];
 					}
 					else {
 						//flat shading
-						t.color = (obj_col[0] << 24) + (obj_col[1] << 16) + (obj_col[2] << 8) + obj_col[3];
+						t.color = (temp[0] << 24) + (temp[1] << 16) + (temp[2] << 8) + temp[3];
 					}
 				}
 			}
@@ -229,7 +216,7 @@ void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vecto
 		if (DontCullTriangle(temp, camerapos))			//if the triangle does not need to be culled, proceed
 		{
 			WorldtoCameraTransform(temp);
-			setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
+			//setDiffuseLight(temp);	//only calculate if the triangle is seen by the camera
 			//TODO:clipping here
 			NDCTransform(temp);
 			ViewPortTransform(temp);
@@ -251,14 +238,24 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 			double b_prime = t.s_normal.y / d;
 			double c_prime = t.s_normal.z / d;
 			double w = t.w;
-			Draw::filltriangle(surface,t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y, 
-				 w, a_prime, b_prime, c_prime, d, ZBuffer, t.vertex_colors[0], t.vertex_colors[1], t.vertex_colors[2], color);
+			Draw::filltriangle_gouraud(surface,t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y, 
+				 w, a_prime, b_prime, c_prime, d, ZBuffer, t.vertex_colors[0] , t.vertex_colors[1] , t.vertex_colors[2]);
 		}
 	}
 
 	else if (light->diffuse_type == Diffuse_Type::Flat_Shading)
 	{
-		//draw call for flat shading.
+		//draw call for flat shading
+		for (auto& t : rastertriangles)
+		{
+			double d = (t.points[0].getDotProduct(t.s_normal.getNormalized()));
+			double a_prime = t.s_normal.x / d;
+			double b_prime = t.s_normal.y / d;
+			double c_prime = t.s_normal.z / d;
+			double w = t.w;
+			Draw::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y,
+				w, a_prime, b_prime, c_prime, d, ZBuffer, t.color);
+		}
 	}
 	else if (light->light_type == Light_Type::PointLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
 	{
@@ -268,6 +265,7 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 	{
 		//draw call
 	}
+
 #define test 0
 
 #if test
