@@ -58,16 +58,17 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
 	pl->setAmbient(0.1f);
-	pl->setDiffuse(Diffuse_Type::Flat_Shading);
+	pl->setDiffuse(Diffuse_Type::Gouraud_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
-	pl->setLightPos({ 0.0, 0.0, 0.0 });
+	pl->setLightPos({ 0.0f, 0.0f, 0.0f });
 	pl->setSpecular(128.0f, 20.0f);
-
+	pl->setLightCol(SDL_MapRGB(surface->format, 200, 166, 255));
 
 	dl = std::make_shared<DirectionalLightSetup>();
 	dl->setAmbient(0.1f);
-	dl->setDiffuse(Diffuse_Type::Flat_Shading);
+	dl->setDiffuse(Diffuse_Type::Phong_Shading);
 	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
+	dl->setLightCol(SDL_MapRGB(surface->format, 200, 166, 255));
 	
 }
 
@@ -79,13 +80,11 @@ void Application::Render()
 		
 	pipeline.setTransformations(transform);
 	pipeline.setCamera(cam, lookDir);
-	pipeline.setLightColor(SDL_MapRGB(surface->format, 200, 166, 255));
 	pipeline.setProjectionParams(90.0f, 0.1f, 1000.0f, screenheight, screenwidth);
 	pipeline.setupTriangles(m , model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 	rotateX += 0.002;
 	rotateY += 0.002;
-	
-	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 166, 255),pl);
+	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 166, 255),dl);
 
 }
 
@@ -115,19 +114,15 @@ void Application::Update()
 	}
 	
 	if (kstate[SDL_SCANCODE_W]) {
-		
 		cam.y += 0.05f;
-		
 	}
 
 	if (kstate[SDL_SCANCODE_S]) {
-		
 		cam.y -= 0.05f;
-		
 	}
 
 	if (kstate[SDL_SCANCODE_G]) {
-		pipeline.testfunc();
+		pipeline.testfunc(pl);
 	}
 
 	

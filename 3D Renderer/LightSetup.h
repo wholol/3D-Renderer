@@ -20,6 +20,7 @@ struct Light
 	double spec_intensity;
 	Diffuse_Type diffuse_type;
 	Light_Type light_type;
+	Uint32 light_col;
 };
 
 
@@ -34,6 +35,11 @@ struct PointLightSetup : Light
 		diffuse_type = type;
 	}
 
+	void setLightCol(Uint32 lightcol)
+	{
+		light_col = lightcol;
+	}
+
 	void setLightPos(Vector3f light_pos)
 	{
 		lightpos = light_pos;
@@ -46,7 +52,7 @@ struct PointLightSetup : Light
 		c = constant;
 	}
 
-	Vector3f lightpos;
+	Vector3f lightpos;	//light position
 	double a, b, c;		//a = quad, b = linear, c = costant
 };
 
@@ -61,10 +67,15 @@ struct DirectionalLightSetup : Light
 		diffuse_type = type;
 	}
 
+	void setLightCol(Uint32 lightcol)
+	{
+		light_col = lightcol;
+	}
+
 	void setLightDir(Vector3f light_dir)
 	{
 		lightdir = light_dir;
 	}
 
-	Vector3f lightdir;
+	Vector3f lightdir;	//lgiht direction
 };
