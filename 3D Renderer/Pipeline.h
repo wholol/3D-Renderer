@@ -18,7 +18,7 @@ public:
 
 	void Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color, std::shared_ptr<Light> light, bool wireframe = true);
 
-	void testfunc(std::shared_ptr<Light> light);
+	void testfunc(std::shared_ptr<PointLightSetup> pl);
 	
 private:
 	Mat3f MVPMat;			
@@ -40,8 +40,11 @@ private:
 	bool DontCullTriangle(triangle& tri,Vector3f& camerapos);
 	void WorldtoCameraTransform(triangle& tri);
 	void NDCTransform(triangle& tri);
-	void sortZDirection();
 	void ViewPortTransform(triangle& tri);
+	void clip(triangle& tri);
+	//Cyrus-Beck Line Clipping algorithm
+	Vector3f intersectPlane(Vector3f& plane, Vector3f& plane_normal, Vector3f& lineStart, Vector3f& lineEnd);
+	int trianglestoclip(Vector3f& plane, Vector3f& plane_normal, triangle& tri, triangle& new1, triangle& new2);
 
 	//lighting functions
 	void ComputeLighting(std::shared_ptr<Light>& light, std::vector<triangle>& tris);		//compute the lgihting for gouraud or flat shading

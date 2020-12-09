@@ -67,8 +67,9 @@ public:
 
 		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 		//note that p2y is the middle, and it will be used for both sides).
-		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, v1_vertex, v2_vertex, v3_vertex, lightdir, color);
 		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p2_x, p2_y, x4, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, v1_vertex, v2_vertex, v3_vertex, lightdir, color);
+		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, x4, p1_y, p3_x, p3_y, w, a_prime, b_prime, c_prime, d, ZBuffer, vertexnormbuffer, v1_vertex, v2_vertex, v3_vertex, lightdir, color);
+		
 	}
 
 
@@ -229,31 +230,28 @@ private:
 		double Ip[4] , Ib[4], Ia[4];
 
 			for (int scanline = p1_y; scanline <= p2_y; scanline++) {
-				double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
-				double px2 = slope_2 * (double)(scanline - p2_y) + (double)p4_x;
+				double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
+				double px2 = slope_2 * ((double)scanline - p2_y) + p4_x;
 				const int xStart = (int)px1;
 				const int xEnd = (int)px2;
 
 				//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
 				//vertex side intensity
 				//Ia = (p1_vertex * (scanline - p2_y) + v2_vertex * (p1_y - scanline)) / (p1_y - p2_y);
-				if ((p1_y - p2_y) != 0) {
-					double t1 = (double)(scanline - p2_y) / (double)(p1_y - p2_y);
-					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p2_y);
-					Ia[1] = ((p1_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
-					Ia[2] = ((p1_color & 0x0000FF00) >> 8) * t1 + ((p2_color & 0x0000FF00) >> 8) * t2;
-					Ia[3] = (p1_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
-				}
-
-				if ((p1_y - p3_y) != 0) {
-					double t1 = (double)(scanline - p3_y) / (double)(p1_y - p3_y);
-					double t2 = (double)(p1_y - scanline) / (double)(p1_y - p3_y);
-					//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
+				double t1 = ((double)scanline - p2_y) / (p1_y - p2_y);
+				double t2 = (p1_y - (double)scanline) / (p1_y - p2_y);
+				Ia[1] = ((p1_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
+				Ia[2] = ((p1_color & 0x0000FF00) >> 8) * t1 + ((p2_color & 0x0000FF00) >> 8) * t2;
+				Ia[3] = (p1_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
 				
-					Ib[1] = ((p1_color & 0x00FF0000) >> 16) *  t1 + ((p3_color & 0x00FF0000) >> 16) * t2;
-					Ib[2] = ((p1_color & 0x0000FF00) >> 8) *  t1 + ((p3_color & 0x0000FF00) >> 8) *  t2;
-					Ib[3] = (p1_color & 0x000000FF) *  t1 + (p3_color & 0x000000FF) *  t2;
-				}
+
+				double t3 = ((double)scanline - p3_y) / (double)(p1_y - p3_y);
+				double t4 = (p1_y - (double)scanline) / (double)(p1_y - p3_y);
+				//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
+				Ib[1] = ((p1_color & 0x00FF0000) >> 16) *  t3 + ((p3_color & 0x00FF0000) >> 16) * t4;
+				Ib[2] = ((p1_color & 0x0000FF00) >> 8) *  t3 + ((p3_color & 0x0000FF00) >> 8) *  t4;
+				Ib[3] = (p1_color & 0x000000FF) *  t3 + (p3_color & 0x000000FF) *  t4;
+				
 
 				if (left_side_major)
 				{
@@ -322,26 +320,26 @@ private:
 			slope_2 = dx2 / dy;
 		}
 
-		double  Ip[4], Ib[4], Ia[4];
+		double Ip[4], Ib[4], Ia[4];
 
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
-			double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
-			double px2 = slope_2 * (double)(scanline - p3_y) + (double)p3_x;
+			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
+			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
 			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
 			
 			if (p3_y - p2_y) {
-				double t1 = (double)(scanline - p2_y) / (double)(p3_y - p2_y);
-				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p2_y);
+				double t1 = ((double)scanline - p2_y) / (p3_y - p2_y);
+				double t2 = (p3_y - (double)scanline) / (p3_y - p2_y);
 				Ia[1] = ((p3_color & 0x00FF0000) >> 16) * t1 + ((p2_color & 0x00FF0000) >> 16) * t2;
 				Ia[2] = ((p3_color & 0x0000FF00) >> 8) * t1 + ((p2_color & 0x0000FF00) >> 8) * t2;
 				Ia[3] = (p3_color & 0x000000FF) * t1 + (p2_color & 0x000000FF) * t2;
 			}
 
 			if (p3_y - p1_y) {
-				double t1 = (double)(scanline - p1_y) / (double)(p3_y - p1_y);
-				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p1_y);
+				double t1 = ((double)scanline - p1_y) / (p3_y - p1_y);
+				double t2 = (p3_y - (double)scanline) / (p3_y - p1_y);
 				
 				//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
 				Ib[1] = ((p3_color & 0x00FF0000) >> 16) *  t1 + ((p1_color & 0x00FF0000) >> 16) * t2;
@@ -417,8 +415,8 @@ private:
 		}
 
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
-			double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
-			double px2 = slope_2 * (double)(scanline - p3_y) + (double)p3_x;
+			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
+			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
 			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
@@ -432,7 +430,6 @@ private:
 					ZBuffer[x + 800 * scanline] = zpos_ndc;
 					putpixel(surface, x, scanline, color);
 				}
-
 			}
 		}
 	}
@@ -469,13 +466,12 @@ private:
 		}
 
 		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
-			double px1 = slope_1 * (double)(scanline - p2_y) + (double)p2_x;
-			double px2 = slope_2 * (double)(scanline - p2_y) + (double)p4_x;
+			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
+			double px2 = slope_2 * ((double)scanline - p2_y) + p4_x;
 			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
 
 			for (int x = xStart; x <= xEnd; ++x) {
-
 				double zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				double zpos_ndc = zpos_camspace_inv * w;
 				if (ZBuffer[x + 800 * scanline] > zpos_ndc) {
@@ -517,7 +513,7 @@ private:
 		if (dy) {
 			slope_2 = dx2 / dy;
 		}
-	
+		
 		Vector3d Va, Vb, Vp;
 		double Vp_x, Vp_y, Vp_z;
 		double Va_x, Va_y, Va_z;
@@ -531,44 +527,36 @@ private:
 		light_src_rgba[3] = (color & 0x000000FF);
 
 		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
-			double px1 = slope_1 * (double)(scanline - p2_y) + p2_x;
-			double px2 = slope_2 * (double)(scanline - p2_y) + p4_x;
+			double px1 = slope_1 * ((double)scanline - p2_y ) + p2_x ;
+			double px2 = slope_2 * ((double)scanline - p2_y ) + p4_x ;
 
 			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
 
-			//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
-			//vertex side intensity
+		
+			double t1 = (double)((double)scanline - p2_y) / (double)(p1_y - p2_y);
+			double t2 = (double)(p1_y - (double)scanline) / (double)(p1_y - p2_y);
 			//Ia = (p1_vertex * (scanline - p2_y) + v2_vertex * (p1_y - scanline)) / (p1_y - p2_y);
-			if ((p1_y - p2_y) != 0) {
-				double t1 = (double)(scanline - p2_y) / (double)(p1_y - p2_y);
-				double t2 = (double)(p1_y - scanline) / (double)(p1_y - p2_y);
-				//Ia = (p1_vertex * (scanline - p2_y) + v2_vertex * (p1_y - scanline)) / (p1_y - p2_y);
-				//split the vertices for double precision
-				double test = (double)p1_vertex.x;
-				Va_x = (double)p1_vertex.x * t1 + (double)p2_vertex.x * t2;
-				Va_y = (double)p1_vertex.y * t1 + (double)p2_vertex.y * t2;
-				Va_z = (double)p1_vertex.z * t1 + (double)p2_vertex.z * t2;
-				Va(Va_x, Va_y, Va_z);
-			}
+			//split the vertices for double precision
+			Va_x = (double)p1_vertex.x * t1 + (double)p2_vertex.x * t2;
+			Va_y = (double)p1_vertex.y * t1 + (double)p2_vertex.y * t2;
+			Va_z = (double)p1_vertex.z * t1 + (double)p2_vertex.z * t2;
+			Va(Va_x, Va_y, Va_z);
 			
-			if ((p1_y - p3_y) != 0) {
-				float t1 = (double)(scanline - p3_y) / (double)(p1_y - p3_y);
-				float t2 = (double)(p1_y - scanline) / (double)(p1_y - p3_y);
-				//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
-				Vb_x = (double)p1_vertex.x * t1 + (double)p3_vertex.x * t2;
-				Vb_y = (double)p1_vertex.y * t1 + (double)p3_vertex.y * t2;
-				Vb_z = (double)p1_vertex.z * t1 + (double)p3_vertex.z * t2;
-				Vb(Vb_x, Vb_y, Vb_z);
-			}
-
+			double t3 = ((double)scanline - p3_y) / (p1_y - p3_y);
+			double t4 = (p1_y - (double)scanline) / (p1_y - p3_y);
+			//Ib = (p1_vertex * (scanline - p3_y) + v3_vertex * (p1_y - scanline)) / (p1_y - p3_y);
+			Vb_x = (double)p1_vertex.x *  t3 + (double)p3_vertex.x * t4;
+			Vb_y = (double)p1_vertex.y *  t3 + (double)p3_vertex.y * t4;
+			Vb_z = (double)p1_vertex.z *  t3 + (double)p3_vertex.z * t4;
+			Vb(Vb_x, Vb_y, Vb_z);
+			
 			if (left_side_major)
 			{
 				std::swap(Va, Vb);
 			}
 
 			for (int x = xStart; x <= xEnd; ++x) {
-
 				double zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
 				double zpos_ndc = zpos_camspace_inv * w;
 
@@ -576,18 +564,18 @@ private:
 					ZBuffer[x + 800 * scanline] = zpos_ndc;
 					if ((xStart - xEnd) == 0)	//if the point is at the vertex
 					{
-						Vp((double)p1_vertex.x, (double)p1_vertex.y, (double)p1_vertex.z);
+						Vp((double)p1_vertex.x , (double)p1_vertex.y , (double)p1_vertex.z );
 					}
 
 					else
 					{
-						double t1 = (double)(xEnd - x) / (double)(xEnd - xStart);
+						double t1 =(double)(xEnd - x) / (double)(xEnd -xStart);
 						double t2 = (double)(x - xStart) / (double)(xEnd - xStart);
-						//Ip = ( Ia * (xEnd - x) + Ib * (x - xStart) ) / (xEnd - xStart);
 						Vp = Va * t1 + Vb * t2;
 					}
 
-					double t = Vp.getNormalized().getDotProduct(Vector3d(0.0, 0.0, -1.0).getNormalized());
+					Vector3d light_dir((double)lightdir.x, (double)lightdir.y, (double)lightdir.z);
+					double t = Vp.getNormalized().getDotProduct(light_dir.getNormalized());
 					if (t < 0.0)
 					{
 						t = 0.0;
@@ -595,7 +583,7 @@ private:
 
 					for (int j = 1; j < 4; ++j)
 					{
-						final_light_rgba[j] = light_src_rgba[j] * t;
+						final_light_rgba[j] = Uint8(light_src_rgba[j] * t);
 					}
 					
 					final_light = (final_light_rgba[0] << 24) + (final_light_rgba[1] << 16) + (final_light_rgba[2] << 8) + final_light_rgba[3];
@@ -650,31 +638,26 @@ private:
 		light_src_rgba[3] = (color & 0x000000FF);
 
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
-			double px1 = slope_1 * (double)(scanline - p2_y) + p2_x;
-			double px2 = slope_2 * (double)(scanline - p3_y) + p3_x;
+			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
+			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
 			const int xStart = (int)px1;
 			const int xEnd = (int)px2;
 
-			if (p3_y - p2_y) {
-				double t1 = (double)(scanline - p2_y) / (double)(p3_y - p2_y);
-				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p2_y);
-				Va_x = (double)p3_vertex.x * t1 + (double)p2_vertex.x * t2;
-				Va_y = (double)p3_vertex.y * t1 + (double)p2_vertex.y * t2;
-				Va_z = (double)p3_vertex.z * t1 + (double)p2_vertex.z * t2;
+			double t1 = (double)((double)scanline - p2_y) / (p3_y - p2_y);
+			double t2 = (double)(p3_y - (double)scanline) / (p3_y - p2_y);
+			Va_x = (double)p3_vertex.x * t1 + (double)p2_vertex.x * t2;
+			Va_y = (double)p3_vertex.y * t1 + (double)p2_vertex.y * t2;
+			Va_z = (double)p3_vertex.z * t1 + (double)p2_vertex.z * t2;
+			Va(Va_x, Va_y, Va_z);
 			
-				Va(Va_x, Va_y, Va_z);
-			}
-
-			if (p3_y - p1_y) {
-				double t1 = (double)(scanline - p1_y) / (double)(p3_y - p1_y);
-				double t2 = (double)(p3_y - scanline) / (double)(p3_y - p1_y);
-				Vb_x = (double)p1_vertex.x * t1 + (double)p3_vertex.x * t2;
-				Vb_y = (double)p1_vertex.y * t1 + (double)p3_vertex.y * t2;
-				Vb_z = (double)p1_vertex.z * t1 + (double)p3_vertex.z * t2;
-				Vb(Vb_x, Vb_y, Vb_z);
-			}
-
+			double t3 = (double)((double)scanline - p1_y) / (double)(p3_y - p1_y);
+			double t4 = (double)(p3_y - (double)scanline) / (double)(p3_y - p1_y);
+			Vb_x = (double)p1_vertex.x * t3 + (double)p3_vertex.x * t4;
+			Vb_y = (double)p1_vertex.y * t3 + (double)p3_vertex.y * t4;
+			Vb_z = (double)p1_vertex.z * t3 + (double)p3_vertex.z * t4;
+			Vb(Vb_x, Vb_y, Vb_z);
+			
 			if (left_side_major)
 			{
 				std::swap(Va, Vb);
@@ -709,7 +692,7 @@ private:
 
 					for (int j = 1; j < 4; ++j)
 					{
-						final_light_rgba[j] = light_src_rgba[j] * t;
+						final_light_rgba[j] = Uint8(light_src_rgba[j] * t);
 					}
 
 					final_light = (final_light_rgba[0] << 24) + (final_light_rgba[1] << 16) + (final_light_rgba[2] << 8) + final_light_rgba[3];
@@ -827,7 +810,7 @@ private:
 					}
 					for (int j = 1; j < 4; ++j)
 					{
-						final_light_rgba[j] = light_src_rgba[j] * t;
+						final_light_rgba[j] = Uint8(light_src_rgba[j] * t);
 					}
 
 					final_light = (final_light_rgba[0] << 24) + (final_light_rgba[1] << 16) + (final_light_rgba[2] << 8) + final_light_rgba[3];

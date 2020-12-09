@@ -193,7 +193,7 @@ void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vecto
 		p2 = ModelMat * p2;
 		p3 = ModelMat * p3;
 
-		//setup triangle params
+		//setup triangle params (geotemtry shader)
 		triangle temp;
 		Vector3f line1 = p3 - p1;
 		Vector3f line2 = p2 - p1;
@@ -212,6 +212,7 @@ void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vecto
 		{
 			WorldtoCameraTransform(temp);		
 			//TODO:clipping here
+			clip(temp);
 			NDCTransform(temp);
 			ViewPortTransform(temp);
 			rastertriangles.emplace_back(temp);
@@ -291,14 +292,12 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 	ZBuffer.clear();
 }
 
-void Pipeline::testfunc(std::shared_ptr<Light> light)
+void Pipeline::testfunc(std::shared_ptr<PointLightSetup> light)
 {
-	if (light->light_type == Light_Type::PointLight)
-	{
+	
 		PointLightSetup& pl = dynamic_cast<PointLightSetup&>(*light);
 		pl.lightpos += { 0, 0, 0.5};
-	}
-	return;
+	
 }
 
 
@@ -335,23 +334,6 @@ void Pipeline::NDCTransform(triangle& tri)
 	}
 }
 
-void Pipeline::sortZDirection()
-{
-	auto sortZ = [](triangle& t1, triangle& t2) {
-		float z1 = 0.0f, z2 = 0.0f;
-
-		for (int i = 0; i < 3; ++i)
-		{
-			 z1 += t1.points[i].z;
-			 z2 += t2.points[i].z;
-		}
-
-		return z2 / 3 > z1 / 3;
-	};
-
-	std::sort(rastertriangles.begin(), rastertriangles.end(), sortZ);
-}
-
 void Pipeline::ViewPortTransform(triangle& tri)
 {
 	for (int i = 0; i < 3; ++i)
@@ -360,4 +342,171 @@ void Pipeline::ViewPortTransform(triangle& tri)
 
 		tri.points[i] = Mat3f::Scale(0.5 * ScreenWidth, 0.5 * ScreenHeight, 1) * tri.points[i];
 	}
+}
+
+void Pipeline::clip(triangle& tri)
+{
+	
+}
+
+Vector3f Pipeline::intersectPlane(Vector3f& plane, Vector3f& plane_normal, Vector3f& lineStart, Vector3f& lineEnd)
+{
+	//UC DAVIS lectuer on clipping
+	plane_normal.Normalize();
+	float plane_d = plane_normal.getDotProduct(plane);
+	float ad = lineStart.getDotProduct(plane_normal);
+	float bd = lineEnd.getDotProduct(plane_normal);
+	float t = (-plane_d - ad) / (bd - ad);
+	Vector3f lineStartToEnd = lineEnd - lineStart;
+	Vector3f linetoIntersect = lineStartToEnd * t;
+	return (lineStart + linetoIntersect);
+}
+
+int Pipeline::trianglestoclip(Vector3f& plane, Vector3f& plane_normal, triangle& tri, triangle& new1, triangle& new2)
+{
+	plane_normal.Normalize();
+
+	auto dist = [&](Vector3f& p)
+	{
+		Vector3f p_n = p.getNormalized();
+		return (plane_normal.x * p.x + plane_normal.y * p.y + plane_normal.z * plane_normal.z - plane_normal.getDotProduct(plane));
+	};
+
+	//compute distance of each point
+	float p0_dist = dist(tri.points[0]);
+	float p1_dist = dist(tri.points[1]);
+	float p2_dist = dist(tri.points[2]);
+
+	bool pl_inside = true;	
+	bool p2_inside = true;
+	bool p3_inside = true;
+
+	Vector3f* inside_points[3];  int nInsidePointCount = 0;
+	Vector3f* outside_points[3]; int nOutsidePointCount = 0;
+
+	if (p0_dist >= 0) { inside_points[nInsidePointCount++] = &tri.points[0]; }
+	else { outside_points[nOutsidePointCount++] = &tri.points[0]; p0_dist = false; }
+	if (p1_dist >= 0) { inside_points[nInsidePointCount++] = &tri.points[1]; }
+	else { outside_points[nOutsidePointCount++] = &tri.points[1]; p1_dist = false; }
+	if (p2_dist >= 0) { inside_points[nInsidePointCount++] = &tri.points[2]; }
+	else { outside_points[nOutsidePointCount++] = &tri.points[2]; p2_dist = false; }
+
+	if (nInsidePointCount == 0)
+	{
+		return 0;	//whole triangle is culled.
+	}
+
+	if (nInsidePointCount == 3)	//all points inside, no need to clip
+	{
+		new1 = tri;
+		return 1;
+	}
+
+	if (nInsidePointCount == 1 && nOutsidePointCount == 2)	//one point inside, two out. form ONE new triangle
+	{
+		if (p0_dist >= 0)	//if point 1 is inside
+		{
+			new1.points[0] = tri.points[0];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[1]);
+			new1.points[2] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[2]);
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[0];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.s_normal;
+		}
+
+		else if (p1_dist >= 0)	//if point 2 is inside
+		{
+			new1.points[0] = tri.points[1];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[0]);
+			new1.points[2] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[2]);
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[1];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.s_normal;
+		}
+
+		else if (p2_dist >= 0)	//if point 3 is inside
+		{
+			new1.points[0] = tri.points[2];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[0]);
+			new1.points[2] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[1]);
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[2];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.s_normal;
+		}
+
+		return 1;
+	}
+
+	if (nInsidePointCount == 2 && nOutsidePointCount == 1)	//two point inside, one out. form TWO new triangle
+	{
+		//02 01 12
+		if (p0_dist >= 0 && p1_dist >=0)	//if point 1 and 2 is inside
+		{
+			//connects with a new point and p1
+			new1.points[0] = tri.points[0];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[2]);
+			new1.points[2] = tri.points[1];
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[0];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.v_normal[1];
+
+			//conects with both new points
+			new2.points[0] = tri.points[1];
+			new2.points[1] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[2]);
+			new2.points[2] = new1.points[1];
+			new2.s_normal = tri.s_normal;
+			new2.v_normal[0] = tri.v_normal[1];
+			new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new2.v_normal[2] = tri.s_normal;
+		}
+
+		else if (p1_dist >= 0 && p2_dist >=0)	//if point 1 and 2 is inside
+		{
+			//connects with a new point and p1
+			new1.points[0] = tri.points[1];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[0]);
+			new1.points[2] = tri.points[2];
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[1];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.v_normal[2];
+
+			//conects with both new points
+			new2.points[0] = tri.points[1];
+			new2.points[1] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[0]);
+			new2.points[2] = new1.points[1];
+			new2.s_normal = tri.s_normal;
+			new2.v_normal[0] = tri.v_normal[1];
+			new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new2.v_normal[2] = tri.s_normal;
+		}
+
+		else if (p0_dist >= 0 && p2_dist >= 0)	//if point 1 and 2 is inside
+		{
+			//connects with a new point and p1
+			new1.points[0] = tri.points[0];
+			new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[1]);
+			new1.points[2] = tri.points[2];
+			new1.s_normal = tri.s_normal;
+			new1.v_normal[0] = tri.v_normal[0];
+			new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new1.v_normal[2] = tri.v_normal[2];
+
+			//conects with both new points
+			new2.points[0] = tri.points[2];
+			new2.points[1] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[1]);
+			new2.points[2] = new1.points[1];
+			new2.s_normal = tri.s_normal;
+			new2.v_normal[0] = tri.v_normal[2];
+			new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+			new2.v_normal[2] = tri.s_normal;
+		}
+
+		return 2;
+	}
+
 }

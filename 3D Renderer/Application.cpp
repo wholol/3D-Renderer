@@ -68,8 +68,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	dl->setAmbient(0.1f);
 	dl->setDiffuse(Diffuse_Type::Phong_Shading);
 	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
-	dl->setLightCol(SDL_MapRGB(surface->format, 200, 166, 255));
-	
+	dl->setLightCol(SDL_MapRGB(surface->format, 200, 166, 255));	
 }
 
 void Application::Render()
