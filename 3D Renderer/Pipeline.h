@@ -44,10 +44,8 @@ private:
 	void clip(triangle& tri);
 	//Cyrus-Beck Line Clipping algorithm
 	Vector3f intersectPlane(Vector3f& plane, Vector3f& plane_normal, Vector3f& lineStart, Vector3f& lineEnd);
-	int trianglestoclip(Vector3f& plane, Vector3f& plane_normal, triangle& tri, triangle& new1, triangle& new2);
+	int trianglestoclip(Vector3f plane, Vector3f plane_normal, triangle& tri, triangle& new1, triangle& new2);
 
 	//lighting functions
 	void ComputeLighting(std::shared_ptr<Light>& light, std::vector<triangle>& tris);		//compute the lgihting for gouraud or flat shading
-	
-
 };

@@ -173,7 +173,7 @@ public:
 		}
 	}
 
-	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,Uint32 color = 0)
+	static void drawtriangle(SDL_Surface* surface, int x0, int y0, int x1, int y1, int x2, int y2, double w, double a_prime, double b_prime, double c_prime, double d, std::vector<double>&  ZBuffer,Uint32 color = 0xffffffff)
 	{
 		drawline(surface, x0, y0, x1, y1,  w,  a_prime, b_prime, c_prime, d ,ZBuffer, color);
 		drawline(surface, x1, y1, x2, y2, w, a_prime, b_prime, c_prime, d ,  ZBuffer, color);
@@ -185,6 +185,10 @@ public:
 		for (double t = 0.; t < 1.0; t += .01) {
 			int x = x0 + (x1 - x0)*t;
 			int y = y0 + (y1 - y0)*t;
+			if (x <= 1) x = 1;
+			if (x >= 799) x = 799;
+			if (y <= 1) y = 1;
+			if (y >= 599) y = 599;
 			double zpos_camspace_inv = ((a_prime * x) + (b_prime * y) + c_prime);
 			double zpos_ndc = zpos_camspace_inv * w;
 
@@ -228,12 +232,16 @@ private:
 		}
 
 		double Ip[4] , Ib[4], Ia[4];
-
+		if (p1_y <= 1) p1_y = 1;
+		if (p2_y >= 599) p2_y = 599;
 			for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 				double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 				double px2 = slope_2 * ((double)scanline - p2_y) + p4_x;
-				const int xStart = (int)px1;
-				const int xEnd = (int)px2;
+				
+				int xStart = (int)px1;
+				int xEnd = (int)px2;
+				if (xStart <= 1) xStart = 1;
+				if (xEnd >= 799) xEnd = 799;
 
 				//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
 				//vertex side intensity
@@ -321,13 +329,16 @@ private:
 		}
 
 		double Ip[4], Ib[4], Ia[4];
-
+		if (p2_y <= 1) p2_y = 1;
+		if (p3_y >= 599) p3_y = 599;
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
 			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
+			int xStart = (int)px1;
+			int xEnd = (int)px2;
+			if (xStart <= 1) xStart = 1;
+			if (xEnd >= 799) xEnd = 799;
 			
 			if (p3_y - p2_y) {
 				double t1 = ((double)scanline - p2_y) / (p3_y - p2_y);
@@ -414,12 +425,18 @@ private:
 			slope_2 = dx2 / dy;
 		}
 
+		if (p2_y <= 0) { p2_y = 0; }
+		if (p3_y >= 599) { p3_y = 599; }
+
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
 			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
+			int xStart = (int)px1;
+			int xEnd = (int)px2;
+
+			if (xStart <= 0) { xStart = 0; }
+			if (xEnd >= 799) { xEnd = 799; }
 
 			for (int x = xStart; x <= xEnd; ++x) {
 
@@ -464,12 +481,19 @@ private:
 		if (dy) {
 			slope_2 = dx2 / dy;
 		}
+		
+		if (p1_y <= 0) { p1_y = 0; }
+		if (p2_y >= 599) { p2_y = 599; }
 
 		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 			double px2 = slope_2 * ((double)scanline - p2_y) + p4_x;
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
+			
+			int xStart = (int)px1;
+			int xEnd = (int)px2;
+
+			if (xStart <= 0) { xStart = 0; }
+			if (xEnd >= 799) { xEnd = 799; }
 
 			for (int x = xStart; x <= xEnd; ++x) {
 				double zpos_camspace_inv = ((a_prime * x) + (b_prime * scanline) + c_prime);
@@ -526,13 +550,18 @@ private:
 		light_src_rgba[2] = (color & 0x0000FF00) >> 8;
 		light_src_rgba[3] = (color & 0x000000FF);
 
+		if (p1_y <= 1) { p1_y = 1; }
+		if (p2_y >= 599) { p2_y = 599; }
+
 		for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 			double px1 = slope_1 * ((double)scanline - p2_y ) + p2_x ;
 			double px2 = slope_2 * ((double)scanline - p2_y ) + p4_x ;
 
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
+			int xStart = (int)px1;
+			int xEnd = (int)px2;
 
+			if (xStart <= 1) { xStart = 1; }
+			if (xEnd >= 799) { xEnd = 799; }
 		
 			double t1 = (double)((double)scanline - p2_y) / (double)(p1_y - p2_y);
 			double t2 = (double)(p1_y - (double)scanline) / (double)(p1_y - p2_y);
@@ -637,12 +666,18 @@ private:
 		light_src_rgba[2] = (color & 0x0000FF00) >> 8;
 		light_src_rgba[3] = (color & 0x000000FF);
 
+		if (p3_y >= 599) { p3_y = 599; }
+		if (p2_y <= 1) { p2_y = 1; }
+
 		for (int scanline = p3_y; scanline >= p2_y; scanline--) {
 			double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 			double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 
-			const int xStart = (int)px1;
-			const int xEnd = (int)px2;
+			int xStart = (int)px1;
+			int xEnd = (int)px2;
+
+			if (xStart <= 1) { xStart = 1; }
+			if (xEnd >= 799) { xEnd = 799; }
 
 			double t1 = (double)((double)scanline - p2_y) / (p3_y - p2_y);
 			double t2 = (double)(p3_y - (double)scanline) / (p3_y - p2_y);

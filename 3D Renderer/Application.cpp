@@ -58,10 +58,10 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
 	pl->setAmbient(0.1f);
-	pl->setDiffuse(Diffuse_Type::Gouraud_Shading);
+	pl->setDiffuse(Diffuse_Type::Flat_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
 	pl->setLightPos({ 0.0f, 0.0f, 0.0f });
-	pl->setSpecular(128.0f, 20.0f);
+	//pl->setSpecular(128.0f, 20.0f);
 	pl->setLightCol(SDL_MapRGB(surface->format, 200, 166, 255));
 
 	dl = std::make_shared<DirectionalLightSetup>();
@@ -74,8 +74,8 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 void Application::Render()
 {
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
-	transform = transform * Mat3f::RotateZ(rotateY);
-	transform = transform * Mat3f::RotateX(rotateX);
+	//transform = transform * Mat3f::RotateZ(rotateY);
+	//transform = transform * Mat3f::RotateX(rotateX);
 		
 	pipeline.setTransformations(transform);
 	pipeline.setCamera(cam, lookDir);
@@ -83,7 +83,7 @@ void Application::Render()
 	pipeline.setupTriangles(m , model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 	rotateX += 0.002;
 	rotateY += 0.002;
-	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 166, 255),dl);
+	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 166, 255),pl);
 
 }
 
@@ -93,11 +93,11 @@ void Application::Update()
 	
 	if (kstate[SDL_SCANCODE_UP]) {
 		
-		cam.z += 0.1f;
+		cam.z += 0.005f;
 	}
 
 	if (kstate[SDL_SCANCODE_DOWN]) {
-		cam.z -= 0.1f;
+		cam.z -= 0.005f;
 	}
 
 	if (kstate[SDL_SCANCODE_D]) {
