@@ -6,7 +6,7 @@
 #include "Light_Type.h"
 
 class Pipeline {
-	//the pipeline = load model -> (vertex shader) transform -> cull -> camera -> proejct -> viewport -> clipping ->pixel shading
+	//the pipeline = load model -> (vertex shader) transform -> cull -> camera -> proejct -> viewport ->pixel shading
 public:
 	void setProjectionParams(float FovDegrees, float Near, float Far,unsigned int ScreenHeight, unsigned int ScreenWidth);	//projection amtrix params
 
@@ -30,18 +30,12 @@ private:
 	std::vector<triangle> rastertriangles;
 	std::vector<double> ZBuffer;
 	
-	/*lighting*/
-	Vector3f DiffuseLightDir = { 0.0f , 0.0f , -1.0f};	//to be set be user 
-	Vector3f PointLightPos = { 0.0f , 0.0f , 0.0f };
-	Uint32 lightcol;
-
 	//functions to be called in setupTriangle() function
 	void ModeltoWorldTransform(triangle& original,triangle& output);
 	bool DontCullTriangle(triangle& tri,Vector3f& camerapos);
 	void WorldtoCameraTransform(triangle& tri);
 	void NDCTransform(triangle& tri);
 	void ViewPortTransform(triangle& tri);
-	void clip(triangle& tri);
 	//Cyrus-Beck Line Clipping algorithm
 	Vector3f intersectPlane(Vector3f& plane, Vector3f& plane_normal, Vector3f& lineStart, Vector3f& lineEnd);
 	int trianglestoclip(Vector3f plane, Vector3f plane_normal, triangle& tri, triangle& new1, triangle& new2);

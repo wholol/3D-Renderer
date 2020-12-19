@@ -59,5 +59,8 @@
     <ClInclude Include="Light_Type.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mat.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -169,6 +169,7 @@
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Light_Type.h" />
     <ClInclude Include="LoadModel.h" />
+    <ClInclude Include="Mat.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="LightSetup.h" />

@@ -182,9 +182,92 @@ public:
 		return other;
 	}
 
+	static Mat3<T> Inverse(const Mat3<T>& a)
+	{
+		Mat3<T> Inv;
+		
+		//implementation: https://semath.info/src/inverse-cofactor-ex4.html
+		T det = (a.cells[0][0] * a.cells[1][1] * a.cells[2][2] * a.cells[3][3]) + (a.cells[0][0] * a.cells[1][2] * a.cells[2][3] * a.cells[3][1]) + (a.cells[0][0] * a.cells[1][3] * a.cells[2][1] * a.cells[3][2])
+			- (a.cells[0][0] * a.cells[1][3] * a.cells[2][2] * a.cells[3][1]) - (a.cells[0][0] * a.cells[1][2] * a.cells[2][1] * a.cells[3][3]) - (a.cells[0][0] * a.cells[1][1] * a.cells[2][3] * a.cells[3][2])
+			- (a.cells[0][1] * a.cells[1][0] * a.cells[2][2] * a.cells[3][3]) - (a.cells[0][2] * a.cells[1][0] * a.cells[2][3] * a.cells[3][1]) - (a.cells[0][3] * a.cells[1][0] * a.cells[2][1] * a.cells[3][2])
+			+ (a.cells[0][3] * a.cells[1][0] * a.cells[2][2] * a.cells[3][1]) + (a.cells[0][2] * a.cells[1][0] * a.cells[2][1] * a.cells[3][3]) + (a.cells[0][1] * a.cells[1][0] * a.cells[2][3] * a.cells[3][2])
+			+ (a.cells[0][1] * a.cells[1][2] * a.cells[2][0] * a.cells[3][3]) + (a.cells[0][2] * a.cells[1][3] * a.cells[2][0] * a.cells[3][1]) + (a.cells[0][3] * a.cells[1][1] * a.cells[2][0] * a.cells[3][2])
+			- (a.cells[0][3] * a.cells[1][2] * a.cells[2][0] * a.cells[3][1]) - (a.cells[0][2] * a.cells[1][1] * a.cells[2][0] * a.cells[3][3]) - (a.cells[0][1] * a.cells[1][3] * a.cells[2][0] * a.cells[3][2])
+			- (a.cells[0][1] * a.cells[1][2] * a.cells[2][3] * a.cells[3][1]) - (a.cells[0][2] * a.cells[1][3] * a.cells[2][0] * a.cells[3][1]) - (a.cells[0][3] * a.cells[1][1] * a.cells[2][2] * a.cells[3][0])
+			+ (a.cells[0][3] * a.cells[1][2] * a.cells[2][1] * a.cells[3][1]) + (a.cells[0][2] * a.cells[1][1] * a.cells[2][3] * a.cells[3][1]) + (a.cells[0][1] * a.cells[1][3] * a.cells[2][2] * a.cells[3][0]);
+
+		
+		T inv_det = std::fabs(det);
+		inv_det = 1.0 / inv_det;
+
+		Inv.cells[0][0] = (a.cells[1][1] * a.cells[2][2] + a.cells[3][3]) + (a.cells[1][2] * a.cells[2][3] * a.cells[3][1]) + (a.cells[1][3] * a.cells[2][1] * a.cells[3][2])
+					- (a.cells[1][3] * a.cells[2][2] * a.cells[3][1]) - (a.cells[1][2] * a.cells[2][1] * a.cells[3][3]) - (a.cells[1][1] * a.cells[2][3] * a.cells[3][2]);
+		
+		Inv.cells[0][1] = -(a.cells[0][1] * a.cells[2][2] * a.cells[3][3]) - (a.cells[0][2] * a.cells[2][3] * a.cells[3][1]) - (a.cells[0][3] * a.cells[2][1] * a.cells[3][2])
+					+ (a.cells[0][3] * a.cells[2][2] * a.cells[3][1]) + (a.cells[0][2] * a.cells[2][1] * a.cells[3][3]) + (a.cells[0][1] * a.cells[2][3] * a.cells[3][2]);
+		
+		Inv.cells[0][2] = (a.cells[0][1] * a.cells[1][2] * a.cells[3][3]) + (a.cells[0][2] * a.cells[1][3] * a.cells[3][1]) + (a.cells[0][3] * a.cells[1][1] * a.cells[3][2])
+					- (a.cells[0][3] * a.cells[2][2] * a.cells[3][1]) - (a.cells[0][2] * a.cells[2][1] * a.cells[3][3]) - (a.cells[0][1] * a.cells[2][3] * a.cells[3][2]);
+
+		Inv.cells[0][3] = -(a.cells[0][1] * a.cells[1][2] * a.cells[2][3]) - (a.cells[0][2] * a.cells[1][3] * a.cells[2][1]) - (a.cells[0][3] * a.cells[1][1] * a.cells[2][2])
+					+ (a.cells[0][3] * a.cells[1][2] * a.cells[2][1]) + (a.cells[0][2] * a.cells[1][1] * a.cells[2][3]) - (a.cells[0][1] * a.cells[1][3] * a.cells[2][2]);
+		
+		
+		
+		Inv.cells[1][0] = -(a.cells[1][0] * a.cells[2][2] + a.cells[3][3]) - (a.cells[1][2] * a.cells[2][3] * a.cells[3][0]) - (a.cells[1][3] * a.cells[2][0] * a.cells[3][2])
+					+ (a.cells[1][3] * a.cells[2][2] * a.cells[3][1]) + (a.cells[1][2] * a.cells[2][0] * a.cells[3][3]) + (a.cells[1][0] * a.cells[2][3] * a.cells[3][2]);
+
+		Inv.cells[1][1] = (a.cells[0][0] * a.cells[2][2] * a.cells[3][3]) + (a.cells[0][2] * a.cells[2][3] * a.cells[3][0]) + (a.cells[0][3] * a.cells[2][0] * a.cells[3][2])
+					- (a.cells[0][3] * a.cells[2][2] * a.cells[3][0]) - (a.cells[0][2] * a.cells[2][0] * a.cells[3][3]) - (a.cells[0][0] * a.cells[2][3] * a.cells[3][2]);
+
+		Inv.cells[1][2] = -(a.cells[0][0] * a.cells[1][2] * a.cells[3][3]) - (a.cells[0][2] * a.cells[1][3] * a.cells[3][0]) - (a.cells[0][3] * a.cells[1][0] * a.cells[3][2])
+					+ (a.cells[0][3] * a.cells[1][2] * a.cells[3][0]) + (a.cells[0][2] * a.cells[2][0] * a.cells[3][3]) + (a.cells[0][0] * a.cells[1][3] * a.cells[3][2]);
+
+		Inv.cells[1][3] = (a.cells[0][0] * a.cells[1][2] * a.cells[2][3]) + (a.cells[0][2] * a.cells[1][3] * a.cells[2][0]) + (a.cells[0][3] * a.cells[1][0] * a.cells[2][2])
+					- (a.cells[0][3] * a.cells[1][2] * a.cells[2][0]) - (a.cells[0][2] * a.cells[1][0] * a.cells[2][3]) - (a.cells[0][0] * a.cells[1][3] * a.cells[2][2]);
+
+
+		
+		Inv.cells[2][0] = (a.cells[1][0] * a.cells[2][1] + a.cells[3][3]) + (a.cells[1][1] * a.cells[2][3] * a.cells[3][0]) + (a.cells[1][3] * a.cells[2][0] * a.cells[3][1])
+					- (a.cells[1][3] * a.cells[2][1] * a.cells[3][0]) - (a.cells[1][1] * a.cells[2][0] * a.cells[3][3]) - (a.cells[1][0] * a.cells[2][3] * a.cells[3][1]);
+			
+		Inv.cells[2][1] = -(a.cells[0][0] * a.cells[2][1] * a.cells[3][3]) - (a.cells[0][1] * a.cells[2][3] * a.cells[3][0]) - (a.cells[0][3] * a.cells[2][0] * a.cells[3][1]) 
+			+ (a.cells[0][3] * a.cells[2][1] * a.cells[3][0]) + (a.cells[0][1] * a.cells[2][0] * a.cells[3][3]) + (a.cells[0][0] * a.cells[2][3] * a.cells[3][1]);
+
+		Inv.cells[2][2] = (a.cells[0][0] * a.cells[1][1] * a.cells[3][3]) + (a.cells[0][1] * a.cells[1][3] * a.cells[3][0]) + (a.cells[0][3] * a.cells[1][0] * a.cells[3][1])
+					- (a.cells[0][3] * a.cells[1][1] * a.cells[3][0]) - (a.cells[0][1] * a.cells[1][0] * a.cells[3][3]) - (a.cells[0][0] * a.cells[1][3] * a.cells[3][1]);
+
+		Inv.cells[2][3] = -(a.cells[0][0] * a.cells[1][1] * a.cells[2][3]) - (a.cells[0][1] * a.cells[1][3] * a.cells[2][0]) - (a.cells[0][3] * a.cells[1][0] * a.cells[2][1])
+					+ (a.cells[0][3] * a.cells[1][1] * a.cells[2][0]) + (a.cells[0][1] * a.cells[1][0] * a.cells[2][3]) - (a.cells[0][0] * a.cells[1][3] * a.cells[2][1]);
+	
+		
+
+		Inv.cells[3][0] = -(a.cells[1][0] * a.cells[2][1] + a.cells[3][2]) - (a.cells[1][1] * a.cells[2][2] * a.cells[3][0]) - (a.cells[1][2] * a.cells[2][0] * a.cells[3][1])
+					+ (a.cells[1][2] * a.cells[2][1] * a.cells[3][1]) + (a.cells[1][1] * a.cells[2][0] * a.cells[3][2]) + (a.cells[1][0] * a.cells[2][2] * a.cells[3][1]);
+
+		Inv.cells[3][1] = (a.cells[0][0] * a.cells[2][1] * a.cells[3][2]) + (a.cells[0][1] * a.cells[2][2] * a.cells[3][0]) + (a.cells[0][2] * a.cells[2][0] * a.cells[3][1])
+					- (a.cells[0][2] * a.cells[2][1] * a.cells[3][0]) - (a.cells[0][1] * a.cells[2][0] * a.cells[3][2]) - (a.cells[0][0] * a.cells[2][2] * a.cells[3][1]);
+
+		Inv.cells[3][2] = -(a.cells[0][0] * a.cells[1][1] * a.cells[3][2]) - (a.cells[0][1] * a.cells[1][2] * a.cells[3][0]) - (a.cells[0][2] * a.cells[1][0] * a.cells[3][1])
+					+ (a.cells[0][2] * a.cells[1][1] * a.cells[3][0]) + (a.cells[0][1] * a.cells[1][0] * a.cells[3][2]) + (a.cells[0][0] * a.cells[1][2] * a.cells[3][1]);
+
+		Inv.cells[3][3] = (a.cells[0][0] * a.cells[1][1] * a.cells[2][2]) + (a.cells[0][1] * a.cells[1][2] * a.cells[2][0]) + (a.cells[0][2] * a.cells[1][0] * a.cells[2][1])
+					- (a.cells[0][2] * a.cells[1][1] * a.cells[2][0]) - (a.cells[0][1] * a.cells[1][0] * a.cells[2][2]) - (a.cells[0][0] * a.cells[1][2] * a.cells[2][1]);
+
+		for (int r = 0; r < 4; ++r)
+		{
+			for (int c = 0; c < 4; ++c)
+			{
+				Inv.cells[r][c] = inv_det * Inv.cells[r][c];
+			}
+		}
+	
+		return Inv;
+	}
+
 	T w;
 private:
-	T cells[4][4] = { 0.0f };
+	T cells[4][4] = { 0.0f };		//[r][c]
 	
 };
 
