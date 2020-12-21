@@ -29,3 +29,8 @@ Types of diffuse shading includes flat shading, Gouraud shading and Phong shadin
 
 ### Phong Illumation Model (Phong shading version)
 ![Phong Illumination Model](https://media.giphy.com/media/0ezNDQTYwnPbLdOO3V/giphy.gif)
+
+### clipping (against z-plane) 
+![clipping](https://media.giphy.com/media/XENJ19jfaOJDdhAUr8/giphy.gif)
+
+
