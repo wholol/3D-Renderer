@@ -1,8 +1,10 @@
 # 3D-Renderer
-CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.
+CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.  
+Types of diffuse shading includes Flat shading, Gouraud shading and Phong shading.  
 
 things that are not done:  
-specular highlight , clipping, texture mapping, and code cleanup
+code cleanup, texture mapping.
+
 
 ## Features  
 ### Backface culling
@@ -18,7 +20,20 @@ specular highlight , clipping, texture mapping, and code cleanup
 ![gouraud](https://media.giphy.com/media/knUtumgXfeUb8K3G1L/giphy.gif)  
   
 ### Point light
-![point light](https://media.giphy.com/media/oZsnM9ulz8tVF46Jhf/giphy.gif)
+![point light](https://media.giphy.com/media/oZsnM9ulz8tVF46Jhf/giphy.gif)  
 
 ### Camera
-![camera](https://media.giphy.com/media/kT4xHDkF1O5RAE8mFL/giphy.gif)
+![camera](https://media.giphy.com/media/kT4xHDkF1O5RAE8mFL/giphy.gif)  
+
+### Phong Illumation Model (gouraud shading version)
+![Phong Illumination Model](https://media.giphy.com/media/RlaeNoANQeAYzCNUwz/giphy.gif)
+
+### Phong Illumation Model (Phong shading version)
+![Phong Illumination Model](https://media.giphy.com/media/0ezNDQTYwnPbLdOO3V/giphy.gif)
+
+### clipping (against z-plane) 
+![clipping](https://media.giphy.com/media/XENJ19jfaOJDdhAUr8/giphy.gif)
+
+### vertex normal visualization
+![vertex normal visualization](https://media.giphy.com/media/b0U2WqtB0VoKSKwmzD/giphy.gif)
+
