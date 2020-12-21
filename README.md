@@ -1,9 +1,10 @@
 # 3D-Renderer
-CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.
+CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.  
+Types of diffuse shading includes Flat shading, Gouraud shading and Phong shading.  
 
 things that are not done:  
 code cleanup, texture mapping.
-Types of diffuse shading includes flat shading, Gouraud shading and Phong shading.
+
 
 ## Features  
 ### Backface culling
