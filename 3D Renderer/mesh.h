@@ -13,7 +13,7 @@ struct triangle
 	Uint32 color;		//difsue color
 	//homogenoues w value for the triangle
 	double ww;
-
+	Vector3f norm_end[3];
 	//color attribs
 	Uint32 vertex_colors[3];
 	

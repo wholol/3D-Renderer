@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 #include "Draw.h"
 #include "Timer.h"
+#include "Vector3.h"
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -29,9 +30,6 @@ void Pipeline::ComputeLighting(std::shared_ptr<Light>& light, std::vector<triang
 
 	Uint8 temp[4];	//temporary to modify colors
 	temp[0] = obj_col[0];
-	temp[1] = obj_col[1];
-	temp[2] = obj_col[2];
-	temp[3] = obj_col[3];
 
 	if (light->light_type == Light_Type::PointLight)
 	{
@@ -153,7 +151,6 @@ void Pipeline::setCamera(Vector3f& camerapos, Vector3f& lookDir)
 void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,bool testforcull)
 {
 	
-
 	for (int i = 0; i < indexbuffer.size(); i += 3)
 	{
 		int a = indexbuffer[i];
@@ -205,14 +202,20 @@ void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vecto
 		temp.v_normal[0] = vertexnormbuffer[a].Normalize();
 		temp.v_normal[1] = vertexnormbuffer[b].Normalize();
 		temp.v_normal[2] = vertexnormbuffer[c].Normalize();
+	
 		
 		if (DontCullTriangle(temp, camerapos))			//if the triangle does not need to be culled, proceed
 		{
+			temp.norm_end[0] = temp.points[0] + temp.v_normal[0] * 0.5;
+			temp.norm_end[1] = temp.points[1] + temp.v_normal[1] * 0.5;
+			temp.norm_end[2] = temp.points[2] + temp.v_normal[2] * 0.5;
+
 			WorldtoCameraTransform(temp);	
 			//TODO:Z plane clipping here
 			temp.viewpoints[0] = temp.points[0];
 			temp.viewpoints[1] = temp.points[1];
 			temp.viewpoints[2] = temp.points[2];
+
 			triangle new_tris[2];
 			int num_tris = trianglestoclip(Vector3f{ 0.0f , 0.0f , 1.0f }, Vector3f{ 0.0f , 0.0f , 1.0f }, temp, new_tris[0], new_tris[1]);	//clip agaisnt z axis
 			for (int i = 0; i < num_tris; ++i)
@@ -225,7 +228,7 @@ void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vecto
 	}
 }
 
-void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color, std::shared_ptr<Light> light, bool wireframe)
+void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color, std::shared_ptr<Light> light, bool wireframe,bool draw_normals)
 {
 	ZBuffer.reserve(ScreenHeight * ScreenWidth);
 
@@ -241,13 +244,25 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		//draw call for gouraud
 		for (auto& t : rastertriangles)
 		{
-			if (wireframe)
-			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer);
-			}
-
 			Draw::filltriangle_gouraud(surface,t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z,
 				 ZBuffer, t.vertex_colors[0] , t.vertex_colors[1] , t.vertex_colors[2]);	
+
+			if (wireframe)
+			{
+				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
+			}
+		}
+
+		//visualize normals
+		if (draw_normals)
+		{
+			for (auto& t : rastertriangles)
+			{
+				for (int i = 0; i <= 2; ++i)
+				{
+					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
+				}
+			}
 		}
 	}
 
@@ -256,34 +271,54 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 		//draw call for flat shading
 		for (auto& t : rastertriangles)
 		{	
+			Draw::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.color);
+
 			if (wireframe)
 			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer);
+				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
+		}
 
-			Draw::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.color);
+		if (draw_normals)
+		{
+			for (auto& t : rastertriangles)
+			{
+				for (int i = 0; i <= 2; ++i)
+				{
+					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
+				}
+			}
 		}
 	}
 
 	else if (light->light_type == Light_Type::DirLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
 	{
 		DirectionalLightSetup& dl = dynamic_cast<DirectionalLightSetup&>(*light);
+		
+		std::vector<normals> n;
+		
 		for (auto& t : rastertriangles)
 		{
-			double d = (t.points[0].getDotProduct(t.s_normal.getNormalized()));
-			double a_prime = t.s_normal.x / d;
-			double b_prime = t.s_normal.y / d;
-			double c_prime = t.s_normal.z / d;
-			double w = 0;
+			Draw::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
+				t.v_normal[2], dl.lightdir, n, color);
 
 			if (wireframe)
 			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer);
+				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
-
-			Draw::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
-				t.v_normal[2] , dl.lightdir , color);
 		}
+
+		if (draw_normals)
+		{
+			for (auto& t : rastertriangles)
+			{
+				for (int i = 0; i <= 2; ++i)
+				{
+					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
+				}
+			}
+		}
+		
 	}
 
 	else if (light->light_type == Light_Type::PointLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
@@ -292,20 +327,27 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 
 		for (auto& t : rastertriangles)
 		{
-			double d = (t.points[0].getDotProduct(t.s_normal.getNormalized()));
-			double a_prime = t.s_normal.x / d;
-			double b_prime = t.s_normal.y / d;
-			double c_prime = t.s_normal.z / d;
-			double w = 0;
-			//draw call
+
+			Draw::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z,t.w[0], t.points[1].x, t.points[1].y, t.points[1].z,t.w[1], t.points[2].x, t.points[2].y, t.points[2].z, 
+				t.w[2],
+				camerapos, ZBuffer,ProjMat,  
+				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, color);
 
 			if (wireframe)
 			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer);
+				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
+		}
 
-			Draw::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y , camerapos, w, a_prime, b_prime, c_prime, d, ZBuffer, Mat3f::Inverse(ProjMat), t.v_normal[0], t.v_normal[1],
-				t.v_normal[2], pl, color);
+		if (draw_normals)
+		{
+			for (auto& t : rastertriangles)
+			{
+				for (int i = 0; i <= 2; ++i)
+				{
+					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
+				}
+			}
 		}
 
 	}
@@ -348,6 +390,7 @@ void Pipeline::WorldtoCameraTransform(triangle& tri)
 {
 	for (int i = 0; i < 3; ++i) {
 		tri.points[i] = ViewMat * tri.points[i];
+		tri.norm_end[i] = ViewMat * tri.norm_end[i];
 	}
 }
 
@@ -358,6 +401,10 @@ void Pipeline::NDCTransform(triangle& tri)
 		tri.points[i] = Mat3f::Normalize(tri.points[i], ProjMat);
 		tri.w[i] = 1.0 / (ProjMat.w);				//store the w value of the projection matrix
 		tri.ww = ProjMat.w;
+
+		tri.norm_end[i] = ProjMat * tri.norm_end[i];
+		tri.norm_end[i] = Mat3f::Normalize(tri.norm_end[i], ProjMat);
+	
 	}
 }
 
@@ -368,6 +415,10 @@ void Pipeline::ViewPortTransform(triangle& tri)
 		tri.points[i] = Mat3f::Translate(1, 1, 0) * tri.points[i];			
 		
 		tri.points[i] = Mat3f::Scale(0.5 * ScreenWidth, 0.5 * ScreenHeight, 1) * tri.points[i];
+
+		tri.norm_end[i] = Mat3f::Translate(1, 1, 0) * tri.norm_end[i];
+
+		tri.norm_end[i] = Mat3f::Scale(0.5 * ScreenWidth, 0.5 * ScreenHeight, 1) * tri.norm_end[i];
 	}
 }
 

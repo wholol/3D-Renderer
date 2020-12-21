@@ -193,8 +193,8 @@ public:
 			+ (a.cells[0][3] * a.cells[1][0] * a.cells[2][2] * a.cells[3][1]) + (a.cells[0][2] * a.cells[1][0] * a.cells[2][1] * a.cells[3][3]) + (a.cells[0][1] * a.cells[1][0] * a.cells[2][3] * a.cells[3][2])
 			+ (a.cells[0][1] * a.cells[1][2] * a.cells[2][0] * a.cells[3][3]) + (a.cells[0][2] * a.cells[1][3] * a.cells[2][0] * a.cells[3][1]) + (a.cells[0][3] * a.cells[1][1] * a.cells[2][0] * a.cells[3][2])
 			- (a.cells[0][3] * a.cells[1][2] * a.cells[2][0] * a.cells[3][1]) - (a.cells[0][2] * a.cells[1][1] * a.cells[2][0] * a.cells[3][3]) - (a.cells[0][1] * a.cells[1][3] * a.cells[2][0] * a.cells[3][2])
-			- (a.cells[0][1] * a.cells[1][2] * a.cells[2][3] * a.cells[3][1]) - (a.cells[0][2] * a.cells[1][3] * a.cells[2][0] * a.cells[3][1]) - (a.cells[0][3] * a.cells[1][1] * a.cells[2][2] * a.cells[3][0])
-			+ (a.cells[0][3] * a.cells[1][2] * a.cells[2][1] * a.cells[3][1]) + (a.cells[0][2] * a.cells[1][1] * a.cells[2][3] * a.cells[3][1]) + (a.cells[0][1] * a.cells[1][3] * a.cells[2][2] * a.cells[3][0]);
+			- (a.cells[0][1] * a.cells[1][2] * a.cells[2][3] * a.cells[3][0]) - (a.cells[0][2] * a.cells[1][3] * a.cells[2][0] * a.cells[3][0]) - (a.cells[0][3] * a.cells[1][1] * a.cells[2][2] * a.cells[3][0])
+			+ (a.cells[0][3] * a.cells[1][2] * a.cells[2][1] * a.cells[3][0]) + (a.cells[0][2] * a.cells[1][1] * a.cells[2][3] * a.cells[3][0]) + (a.cells[0][1] * a.cells[1][3] * a.cells[2][2] * a.cells[3][0]);
 
 		
 		T inv_det = std::fabs(det);
@@ -202,7 +202,8 @@ public:
 
 		Inv.cells[0][0] = (a.cells[1][1] * a.cells[2][2] + a.cells[3][3]) + (a.cells[1][2] * a.cells[2][3] * a.cells[3][1]) + (a.cells[1][3] * a.cells[2][1] * a.cells[3][2])
 					- (a.cells[1][3] * a.cells[2][2] * a.cells[3][1]) - (a.cells[1][2] * a.cells[2][1] * a.cells[3][3]) - (a.cells[1][1] * a.cells[2][3] * a.cells[3][2]);
-		
+		Inv.cells[0][0] = Inv.cells[0][0] / 2;
+
 		Inv.cells[0][1] = -(a.cells[0][1] * a.cells[2][2] * a.cells[3][3]) - (a.cells[0][2] * a.cells[2][3] * a.cells[3][1]) - (a.cells[0][3] * a.cells[2][1] * a.cells[3][2])
 					+ (a.cells[0][3] * a.cells[2][2] * a.cells[3][1]) + (a.cells[0][2] * a.cells[2][1] * a.cells[3][3]) + (a.cells[0][1] * a.cells[2][3] * a.cells[3][2]);
 		
@@ -243,7 +244,7 @@ public:
 		
 
 		Inv.cells[3][0] = -(a.cells[1][0] * a.cells[2][1] + a.cells[3][2]) - (a.cells[1][1] * a.cells[2][2] * a.cells[3][0]) - (a.cells[1][2] * a.cells[2][0] * a.cells[3][1])
-					+ (a.cells[1][2] * a.cells[2][1] * a.cells[3][1]) + (a.cells[1][1] * a.cells[2][0] * a.cells[3][2]) + (a.cells[1][0] * a.cells[2][2] * a.cells[3][1]);
+					+ (a.cells[1][2] * a.cells[2][1] * a.cells[3][0]) + (a.cells[1][1] * a.cells[2][0] * a.cells[3][2]) + (a.cells[1][0] * a.cells[2][2] * a.cells[3][1]);
 
 		Inv.cells[3][1] = (a.cells[0][0] * a.cells[2][1] * a.cells[3][2]) + (a.cells[0][1] * a.cells[2][2] * a.cells[3][0]) + (a.cells[0][2] * a.cells[2][0] * a.cells[3][1])
 					- (a.cells[0][2] * a.cells[2][1] * a.cells[3][0]) - (a.cells[0][1] * a.cells[2][0] * a.cells[3][2]) - (a.cells[0][0] * a.cells[2][2] * a.cells[3][1]);

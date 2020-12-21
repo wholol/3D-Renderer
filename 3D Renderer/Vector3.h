@@ -46,7 +46,7 @@ public:
 	}
 
 	Vector3 operator /(const T& other) { 
-		return Vector3(this->x / other.x, this->y / other.y, this->z / other.z); 
+		return Vector3(this->x / other, this->y / other, this->z / other); 
 	}
 
 	T getMagnitude() const {
