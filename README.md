@@ -34,4 +34,6 @@ code cleanup, texture mapping.
 ### clipping (against z-plane) 
 ![clipping](https://media.giphy.com/media/XENJ19jfaOJDdhAUr8/giphy.gif)
 
+### vertex normal visualization
+![vertex normal visualization](https://media.giphy.com/media/b0U2WqtB0VoKSKwmzD/giphy.gif)
 
