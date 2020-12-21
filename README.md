@@ -2,7 +2,8 @@
 CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.
 
 things that are not done:  
-specular highlight , clipping, texture mapping, and code cleanup
+code cleanup, texture mapping.
+Types of diffuse shading includes flat shading, Gouraud shading and Phong shading.
 
 ## Features  
 ### Backface culling
@@ -18,7 +19,10 @@ specular highlight , clipping, texture mapping, and code cleanup
 ![gouraud](https://media.giphy.com/media/knUtumgXfeUb8K3G1L/giphy.gif)  
   
 ### Point light
-![point light](https://media.giphy.com/media/oZsnM9ulz8tVF46Jhf/giphy.gif)
+![point light](https://media.giphy.com/media/oZsnM9ulz8tVF46Jhf/giphy.gif)  
 
 ### Camera
-![camera](https://media.giphy.com/media/kT4xHDkF1O5RAE8mFL/giphy.gif)
+![camera](https://media.giphy.com/media/kT4xHDkF1O5RAE8mFL/giphy.gif)  
+
+### Phong Illumation Model (gouraud shading version)
+![Phong Illumination Model](https://media.giphy.com/media/RlaeNoANQeAYzCNUwz/giphy.gif)
