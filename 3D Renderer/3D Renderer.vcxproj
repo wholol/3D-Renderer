@@ -91,7 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -110,6 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -150,6 +151,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -180,14 +182,38 @@
     <ClInclude Include="Mat.h" />
     <ClInclude Include="PhongFlat_Frag.h" />
     <ClInclude Include="PhongPoint_Frag.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Diffuse_type.h" />
+    <ClInclude Include="src\Draw.h" />
+    <ClInclude Include="src\FlatShading_Frag.h" />
+    <ClInclude Include="src\FragmentShader.h" />
+    <ClInclude Include="src\Gouraud_Frag.h" />
+    <ClInclude Include="src\LightSetup.h" />
+    <ClInclude Include="src\Light_Type.h" />
+    <ClInclude Include="src\LoadModel.h" />
+    <ClInclude Include="src\Mat.h" />
+    <ClInclude Include="src\normals.h" />
+    <ClInclude Include="src\PhongFlat_Frag.h" />
+    <ClInclude Include="src\PhongPoint_Frag.h" />
+    <ClInclude Include="src\ScreenSize.h" />
+    <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\tiny_obj_loader.h" />
+    <ClInclude Include="src\triangle.h" />
+    <ClInclude Include="src\Vector2.h" />
+    <ClInclude Include="src\Vector3.h" />
+    <ClInclude Include="src\VertexShader.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="normals.h" />
     <ClInclude Include="LightSetup.h" />
     <ClInclude Include="ScreenSize.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="VertexShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SDL2.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

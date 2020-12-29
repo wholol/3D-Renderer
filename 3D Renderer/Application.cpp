@@ -46,14 +46,8 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 
 void Application::Render()
 {
-	Mat3f transform = Mat3f::Translate(0, 0, 5);
-	transform = transform * Mat3f::RotateZ(rotateY);
-	transform = transform * Mat3f::RotateX(rotateX);
-
-	vs.setViewMatrix(cam, lookDir);
-	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
-	vs.setTransformMatrix(transform);
-	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, dl);
+	
+	
 	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), dl,false);
 
 	//pipeline.setTransformations(transform);
@@ -67,6 +61,15 @@ void Application::Render()
 
 void Application::Update()
 {
+	Mat3f transform = Mat3f::Translate(0, 0, 5);
+	transform = transform * Mat3f::RotateZ(rotateY);
+	transform = transform * Mat3f::RotateX(rotateX);
+
+	vs.setViewMatrix(cam, lookDir);
+	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
+	vs.setTransformMatrix(transform);
+	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, dl);
+
 	const Uint8 *kstate = SDL_GetKeyboardState(NULL);
 	
 	if (kstate[SDL_SCANCODE_UP]) {
