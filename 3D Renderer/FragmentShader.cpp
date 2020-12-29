@@ -1,6 +1,10 @@
 #include "FragmentShader.h"
 #include "Draw.h"
 #include "ScreenSize.h"
+#include "PhongFlat_Frag.h"
+#include "Gouraud_Frag.h"
+#include "FlatShading_Frag.h"
+#include "PhongPoint_Frag.h"
 
 void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,std::vector<triangle>& rastertriangles, Uint32 objcolor, std::shared_ptr<Light> light, bool wireframe, bool draw_normals)
 {
@@ -16,7 +20,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		//draw call for gouraud
 		for (auto& t : rastertriangles)
 		{
-			Draw::filltriangle_gouraud(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z,
+			Gouraud_Frag::filltriangle_gouraud(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z,
 				ZBuffer, t.vertex_colors[0], t.vertex_colors[1], t.vertex_colors[2]);
 
 			if (wireframe)
@@ -43,7 +47,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		//draw call for flat shading
 		for (auto& t : rastertriangles)
 		{
-			Draw::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.color);
+			FlatShading_Frag::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.color);
 
 			if (wireframe)
 			{
@@ -67,12 +71,10 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 	{
 		DirectionalLightSetup& dl = dynamic_cast<DirectionalLightSetup&>(*light);
 
-		std::vector<normals> n;
-
 		for (auto& t : rastertriangles)
 		{
-			Draw::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
-				t.v_normal[2], dl.lightdir, n, objcolor);
+			PhongFlat_Frag::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
+				t.v_normal[2], dl.lightdir,objcolor);
 
 			if (wireframe)
 			{
@@ -100,7 +102,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		for (auto& t : rastertriangles)
 		{
 
-			//Draw::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
+			//PhongPoint_Frag::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
 				//t.w[2],
 				//camerapos, ZBuffer, ProjMat,
 				//t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, objcolor);

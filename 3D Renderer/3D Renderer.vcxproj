@@ -160,22 +160,28 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="FlatShading_Frag.cpp" />
     <ClCompile Include="FragmentShader.cpp" />
+    <ClCompile Include="Gouraud_Frag.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="PhongFlat_Frag.cpp" />
+    <ClCompile Include="PhongPoint_Frag.cpp" />
     <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Diffuse_type.h" />
     <ClInclude Include="Draw.h" />
+    <ClInclude Include="FlatShading_Frag.h" />
     <ClInclude Include="FragmentShader.h" />
+    <ClInclude Include="Gouraud_Frag.h" />
     <ClInclude Include="Light_Type.h" />
     <ClInclude Include="LoadModel.h" />
     <ClInclude Include="Mat.h" />
-    <ClInclude Include="mesh.h" />
+    <ClInclude Include="PhongFlat_Frag.h" />
+    <ClInclude Include="PhongPoint_Frag.h" />
+    <ClInclude Include="triangle.h" />
     <ClInclude Include="normals.h" />
-    <ClInclude Include="Pipeline.h" />
     <ClInclude Include="LightSetup.h" />
     <ClInclude Include="ScreenSize.h" />
     <ClInclude Include="Timer.h" />

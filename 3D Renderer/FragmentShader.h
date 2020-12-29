@@ -3,7 +3,7 @@
 #include <vector>
 #include "Vector3.h"
 #include "LightSetup.h"
-#include "mesh.h"
+#include "triangle.h"
 
 class FragmentShader
 {

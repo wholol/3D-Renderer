@@ -20,7 +20,7 @@ void VertexShader::setViewMatrix(Vector3f & camerapos, Vector3f & lookDir)
 	this->camerapos = camerapos;
 }
 
-void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,std::shared_ptr<Light>& light, bool testforcull)
+void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,std::shared_ptr<Light> light, bool testforcull)
 {
 	for (int i = 0; i < indexbuffer.size(); i += 3)
 	{

@@ -21,13 +21,22 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VertexShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FragmentShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhongFlat_Frag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gouraud_Frag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlatShading_Frag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhongPoint_Frag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,12 +48,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="LoadModel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pipeline.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="tiny_obj_loader.h">
@@ -78,6 +81,21 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ScreenSize.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhongFlat_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhongPoint_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gouraud_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlatShading_Frag.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

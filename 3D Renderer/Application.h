@@ -2,9 +2,12 @@
 #include "SDL.h"
 #include <string>
 #include "LoadModel.h"
-#include "Pipeline.h"
-#include "mesh.h"
+#include "triangle.h"
 #include "LightSetup.h"
+#include "VertexShader.h"
+#include "FragmentShader.h"
+#include "ScreenSize.h"
+
 
 class Application
 {
@@ -20,10 +23,11 @@ private:
 	SDL_Surface* surface;
 	LoadModel model;
 	SDL_Event event;
+	VertexShader vs;
+	FragmentShader fs;
 	std::vector<triangle> testpoints;
 	std::shared_ptr<PointLightSetup> pl;		//point light setup
 	std::shared_ptr<DirectionalLightSetup> dl;	//direct light setup
-	Pipeline pipeline;
 	Vector3f lookDir = { 0, 0, 1 };
 	Vector3f cam = { 0 , 0, 0 };
 	unsigned int screenwidth, screenheight;

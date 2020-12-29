@@ -3,7 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include "mesh.h"
+#include "triangle.h"
 #include "tiny_obj_loader.h"
 #include <iostream>
 

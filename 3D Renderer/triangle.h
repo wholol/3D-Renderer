@@ -17,5 +17,4 @@ struct triangle
 	Vector3f norm_end[3];
 	//color attribs
 	Uint32 vertex_colors[3];
-	
 };

@@ -6,7 +6,6 @@
 #include "Draw.h"
 
 
-
 Application::Application(const std::string& title, int xpos, int ypos, int ScreenWidth, int ScreenHeight, bool fullscreen)
 	:screenheight(ScreenHeight) , screenwidth(ScreenWidth)
 {
@@ -40,7 +39,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 
 	dl = std::make_shared<DirectionalLightSetup>();
 	dl->setAmbient(0.1f);
-	dl->setDiffuse(Diffuse_Type::Flat_Shading);
+	dl->setDiffuse(Diffuse_Type::Phong_Shading);
 	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
 	dl->setLightCol(SDL_MapRGB(surface->format, 200, 255, 255));	
 }
@@ -50,13 +49,20 @@ void Application::Render()
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
 	transform = transform * Mat3f::RotateZ(rotateY);
 	transform = transform * Mat3f::RotateX(rotateX);
-	pipeline.setTransformations(transform);
-	pipeline.setCamera(cam, lookDir);
-	pipeline.setProjectionParams(90.0f, 1.0f, 50.0f, screenheight, screenwidth);
-	pipeline.setupTriangles( model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
+
+	vs.setViewMatrix(cam, lookDir);
+	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
+	vs.setTransformMatrix(transform);
+	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, dl);
+	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), dl,false);
+
+	//pipeline.setTransformations(transform);
+	//pipeline.setCamera(cam, lookDir);
+	//pipeline.setProjectionParams(90.0f, 1.0f, 50.0f, screenheight, screenwidth);
+	//pipeline.setupTriangles( model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 	rotateX += 0.002;
 	rotateY += 0.002;
-	pipeline.Draw(surface,model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 255, 255),dl,true,true);
+	//pipeline.Draw(surface,model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 255, 255),dl,true,true);
 }
 
 void Application::Update()
@@ -90,10 +96,6 @@ void Application::Update()
 
 	if (kstate[SDL_SCANCODE_S]) {
 		cam.y -= 0.05f;
-	}
-
-	if (kstate[SDL_SCANCODE_G]) {
-		pipeline.testfunc(pl);
 	}
 
 	

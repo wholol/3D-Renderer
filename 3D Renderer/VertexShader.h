@@ -1,7 +1,7 @@
 #pragma once
 #include "Mat.h"
 #include <vector>
-#include "mesh.h"
+#include "triangle.h"
 #include "LightSetup.h"
 #include <algorithm>
 #include "SDL.h"
@@ -13,7 +13,7 @@ public:
 	void setProjectionMatrix(float FovDegrees, float Near, float Far, unsigned int ScreenHeight, unsigned int ScreenWidth);
 	void setTransformMatrix(const Mat3f finalTransform = Mat3f::Identity());
 	void setViewMatrix(Vector3f& camerapos, Vector3f& lookDir);
-	void ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, std::shared_ptr<Light>& light, bool testforcull = true);
+	void ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, std::shared_ptr<Light> light, bool testforcull = true);
 	std::vector<triangle>& getRasterTriangles();
 
 private:
