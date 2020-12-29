@@ -2,6 +2,7 @@
 #include "Diffuse_type.h"
 #include "Light_Type.h"
 
+
 struct Light
 {
 	virtual void setDiffuse(Diffuse_Type type) = 0;

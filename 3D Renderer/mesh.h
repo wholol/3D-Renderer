@@ -2,6 +2,7 @@
 #include <vector>
 #include "Vector3.h"
 #include "Vector2.h"
+#include "SDL.h"
 
 struct triangle
 {
@@ -17,9 +18,4 @@ struct triangle
 	//color attribs
 	Uint32 vertex_colors[3];
 	
-};
-
-struct mesh
-{
-	std::vector<triangle> triangles;
 };

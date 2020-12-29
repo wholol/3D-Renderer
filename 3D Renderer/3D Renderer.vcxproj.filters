@@ -24,6 +24,12 @@
     <ClCompile Include="Pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FragmentShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -63,6 +69,15 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="normals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FragmentShader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSize.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

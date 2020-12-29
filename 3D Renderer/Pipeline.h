@@ -14,7 +14,7 @@ public:
 
 	void setCamera(Vector3f& camerapos,Vector3f& lookDir);
 
-	void setupTriangles( mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer ,bool testforcull = true);	//should transform coordinates to space, and perform scan line conversion.
+	void setupTriangles(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer ,bool testforcull = true);	//should transform coordinates to space, and perform scan line conversion.
 
 	void Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer, Uint32 color, std::shared_ptr<Light> light, bool wireframe = true, bool normals = false);
 

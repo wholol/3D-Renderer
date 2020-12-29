@@ -20,7 +20,6 @@ private:
 	SDL_Surface* surface;
 	LoadModel model;
 	SDL_Event event;
-	mesh m;
 	std::vector<triangle> testpoints;
 	std::shared_ptr<PointLightSetup> pl;		//point light setup
 	std::shared_ptr<DirectionalLightSetup> dl;	//direct light setup

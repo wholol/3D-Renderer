@@ -160,13 +160,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Diffuse_type.h" />
     <ClInclude Include="Draw.h" />
+    <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="Light_Type.h" />
     <ClInclude Include="LoadModel.h" />
     <ClInclude Include="Mat.h" />
@@ -174,9 +177,11 @@
     <ClInclude Include="normals.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="LightSetup.h" />
+    <ClInclude Include="ScreenSize.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Vector3.h" />
+    <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

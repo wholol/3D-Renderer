@@ -6,6 +6,7 @@
 #include "Draw.h"
 
 
+
 Application::Application(const std::string& title, int xpos, int ypos, int ScreenWidth, int ScreenHeight, bool fullscreen)
 	:screenheight(ScreenHeight) , screenwidth(ScreenWidth)
 {
@@ -26,34 +27,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	}
 	
 	surface = SDL_GetWindowSurface(window);
-	testpoints = //South
-	{
-		//South
-		{Vector3f(0 ,0 ,0) , Vector3f(0 ,1 ,0) , Vector3f(1 ,1 ,0)},
-		{Vector3f(0 ,0 ,0) , Vector3f(1 ,1 ,0) , Vector3f(1 ,0 ,0)},
-
-		//East
-		{Vector3f(1 ,0 ,0) , Vector3f(1 ,1 ,0) ,Vector3f(1 ,1 ,1)},
-		{Vector3f(1 ,0 ,0) , Vector3f(1 ,1 ,1) , Vector3f(1 ,0 ,1)},
-
-		//north
-		{Vector3f(1 ,0 ,1) , Vector3f(1 ,1 ,1) ,Vector3f(0 ,1 ,1)},
-		{Vector3f(1 ,0 ,1) , Vector3f(0 ,1 ,1) , Vector3f(0 ,0 ,1)},
-
-		//West
-		{Vector3f(0 ,0 ,1) , Vector3f(0 ,1 ,1) , Vector3f(0 ,1 ,0)},
-		{Vector3f(0 ,0 ,1) , Vector3f(0 ,1 ,0) , Vector3f(0 ,0 ,0)},
-
-		//Top
-		{Vector3f(0 ,1 ,0) , Vector3f(0 ,1 ,1) , Vector3f(1 ,1 ,1)},
-		{Vector3f(0 ,1 ,0) ,Vector3f(1 ,1 ,1) , Vector3f(1 ,1 ,0)},
-
-		//Bottom
-		{Vector3f(1 ,0 ,1) , Vector3f(0 ,0 ,1) , Vector3f(0 ,0 ,0)},
-		{Vector3f(1 ,0 ,1) , Vector3f(0 ,0 ,0) , Vector3f(1 ,0 ,0)},
-	};
-	//model.loadFromFile(testpoints, m);
-	//model.loadFromFile("teapot.obj", m);
+	
 	model.loadFromFile("sphere.obj");
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
@@ -79,10 +53,10 @@ void Application::Render()
 	pipeline.setTransformations(transform);
 	pipeline.setCamera(cam, lookDir);
 	pipeline.setProjectionParams(90.0f, 1.0f, 50.0f, screenheight, screenwidth);
-	pipeline.setupTriangles(m , model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
+	pipeline.setupTriangles( model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 	rotateX += 0.002;
 	rotateY += 0.002;
-	pipeline.Draw(surface, model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 255, 255),dl,true,true);
+	pipeline.Draw(surface,model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 255, 255),dl,true,true);
 }
 
 void Application::Update()

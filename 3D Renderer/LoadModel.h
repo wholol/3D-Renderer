@@ -10,54 +10,12 @@
 class LoadModel
 {
 public:
-	void loadFromFile(const std::string& filepath, mesh& m) {
-	
-		std::ifstream f(filepath);
-		
-		if (!f)
-		{
-			throw std::runtime_error("file opening failed.");
-		}
-
-		// Local cache of verts
-		std::vector<Vector3f> verts;
-
-		while (!f.eof())
-		{
-			char line[128];
-			f.getline(line, 128);
-
-			std::stringstream s;
-			s << line;
-
-			char junk;
-
-			if (line[0] == 'v')	//load vertex
-			{
-				Vector3f v;
-				v.setComponents(s);
-				verts.emplace_back(v);
-			}
-
-			if (line[0] == 'f')		//load faces
-			{
-				int f[3];
-				s >> junk >> f[0] >> f[1] >> f[2];
-				m.triangles.push_back({ verts[f[0] - 1], verts[f[1] - 1], verts[f[2] - 1] });		
-			}
-		}
-	}
-
-	void loadFromFile(std::vector<triangle>& points, mesh& m)
-	{
-		m.triangles = std::move(points);
-			
-	}
 	
 	std::vector<Vector3f> vertexbuffer;
 	std::vector<Vector3f> vertexnormbuffer;
 	std::vector<int> indexbuffer;
 	
+public:
 	void loadFromFile(const std::string& objfile)
 	{
 		tinyobj::attrib_t attrib;

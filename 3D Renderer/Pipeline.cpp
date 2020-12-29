@@ -148,7 +148,7 @@ void Pipeline::setCamera(Vector3f& camerapos, Vector3f& lookDir)
 	this->camerapos = camerapos;
 }
 
-void Pipeline::setupTriangles(mesh& m, std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,bool testforcull)
+void Pipeline::setupTriangles(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,bool testforcull)
 {
 	
 	for (int i = 0; i < indexbuffer.size(); i += 3)
@@ -349,7 +349,6 @@ void Pipeline::Draw(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffe
 				}
 			}
 		}
-
 	}
 
 	rastertriangles.clear();

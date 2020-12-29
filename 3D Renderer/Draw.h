@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "Vector3.h"
+#include "Mat.h"
 #include "normals.h"
 //FRAGMENT PART
 #include <algorithm>
