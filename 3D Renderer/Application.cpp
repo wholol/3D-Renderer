@@ -5,7 +5,6 @@
 #include "SDL.h"
 #include "Draw.h"
 
-
 Application::Application(const std::string& title, int xpos, int ypos, int ScreenWidth, int ScreenHeight, bool fullscreen)
 	:screenheight(ScreenHeight) , screenwidth(ScreenWidth)
 {
@@ -33,22 +32,21 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	pl->setAmbient(0.1f);
 	pl->setDiffuse(Diffuse_Type::Gouraud_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
-	pl->setSpecular(6.0f, 20.0f);
+	
+	pl->setSpecular(1.0f ,10.0f);
 	pl->setLightPos({ 0.0f, 0.0f, -10.0f });
 	pl->setLightCol(SDL_MapRGB(surface->format, 200, 255, 255));
 
 	dl = std::make_shared<DirectionalLightSetup>();
 	dl->setAmbient(0.1f);
-	dl->setDiffuse(Diffuse_Type::Phong_Shading);
+	dl->setDiffuse(Diffuse_Type::Gouraud_Shading);
 	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
 	dl->setLightCol(SDL_MapRGB(surface->format, 200, 255, 255));	
 }
 
 void Application::Render()
 {
-	
-	
-	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), dl,false);
+	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), pl, cam, vs.ProjMat, vs.ViewMat);
 
 	//pipeline.setTransformations(transform);
 	//pipeline.setCamera(cam, lookDir);
@@ -62,13 +60,13 @@ void Application::Render()
 void Application::Update()
 {
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
-	transform = transform * Mat3f::RotateZ(rotateY);
-	transform = transform * Mat3f::RotateX(rotateX);
+	transform = transform * Mat3f::RotateY(rotateY);
+	//transform = transform * Mat3f::RotateX(rotateX);
 
 	vs.setViewMatrix(cam, lookDir);
 	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
 	vs.setTransformMatrix(transform);
-	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, dl);
+	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, pl);
 
 	const Uint8 *kstate = SDL_GetKeyboardState(NULL);
 	
@@ -100,6 +98,11 @@ void Application::Update()
 	if (kstate[SDL_SCANCODE_S]) {
 		cam.y -= 0.05f;
 	}
+
+	if (kstate[SDL_SCANCODE_O]) {
+		pl->lightpos += {0.0, -0.05f, 0.0f};
+	}
+
 
 	
 	surface = SDL_GetWindowSurface(window);

@@ -6,7 +6,7 @@
 #include "FlatShading_Frag.h"
 #include "PhongPoint_Frag.h"
 
-void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,std::vector<triangle>& rastertriangles, Uint32 objcolor, std::shared_ptr<Light> light, bool wireframe, bool draw_normals)
+void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,std::vector<triangle>& rastertriangles, Uint32 objcolor, std::shared_ptr<Light> light,Vector3f& camerapos , Mat3f& ProjMat, Mat3f& ViewMat, bool wireframe, bool draw_normals)
 {
 	ZBuffer.reserve(SCREENHEIGHT * SCREENWIDTH);
 
@@ -28,18 +28,6 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
 		}
-
-		//visualize normals
-		if (draw_normals)
-		{
-			for (auto& t : rastertriangles)
-			{
-				for (int i = 0; i <= 2; ++i)
-				{
-					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
-				}
-			}
-		}
 	}
 
 	else if (light->diffuse_type == Diffuse_Type::Flat_Shading)
@@ -52,17 +40,6 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 			if (wireframe)
 			{
 				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
-			}
-		}
-
-		if (draw_normals)
-		{
-			for (auto& t : rastertriangles)
-			{
-				for (int i = 0; i <= 2; ++i)
-				{
-					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
-				}
 			}
 		}
 	}
@@ -81,46 +58,42 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
 		}
-
-		if (draw_normals)
-		{
-			for (auto& t : rastertriangles)
-			{
-				for (int i = 0; i <= 2; ++i)
-				{
-					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
-				}
-			}
-		}
-
 	}
 
 	else if (light->light_type == Light_Type::PointLight && light->diffuse_type == Diffuse_Type::Phong_Shading)
 	{
 		PointLightSetup& pl = dynamic_cast<PointLightSetup&>(*light);
 
+		Mat3f ProjMat_inv;		//used to convert screen space to view space for each fragment
+		ProjMat_inv = Mat3f::Inverse(ProjMat);
+
+		Vector3f pl_worldpos = pl.lightpos;	//store pl world pos.
+		
+		pl.lightpos = ViewMat * pl.lightpos;	//transform lightpos to world space. (more effiencient to do it before rasterization)
+
 		for (auto& t : rastertriangles)
 		{
 
-			//PhongPoint_Frag::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
-				//t.w[2],
-				//camerapos, ZBuffer, ProjMat,
-				//t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, objcolor);
+			PhongPoint_Frag::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
+				t.w[2], camerapos,
+				 ZBuffer, ProjMat_inv,
+				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, objcolor);
 
 			if (wireframe)
 			{
 				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
 		}
+		pl.lightpos = pl_worldpos;	//change back to world pos after rasterization.
+	}
 
-		if (draw_normals)
+	if (draw_normals)
+	{
+		for (auto& t : rastertriangles)
 		{
-			for (auto& t : rastertriangles)
+			for (int i = 0; i <= 2; ++i)
 			{
-				for (int i = 0; i <= 2; ++i)
-				{
-					Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
-				}
+				Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
 			}
 		}
 	}

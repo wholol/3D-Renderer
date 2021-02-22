@@ -5,6 +5,7 @@
 #include "LightSetup.h"
 #include <algorithm>
 #include "SDL.h"
+#include <iostream>
 
 class VertexShader
 {
@@ -15,11 +16,13 @@ public:
 	void setViewMatrix(Vector3f& camerapos, Vector3f& lookDir);
 	void ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, std::shared_ptr<Light> light, bool testforcull = true);
 	std::vector<triangle>& getRasterTriangles();
-
+	
+public:
+	Mat3f ProjMat;	//needed for phong shading, hence public
+	Mat3f ViewMat; //needed for phong shading, hence public
 private:
 	Mat3f MVPMat;
-	Mat3f ProjMat;
-	Mat3f ViewMat;
+	
 	Mat3f ModelMat;
 	std::vector<triangle> rastertriangles;
 	int ScreenWidth, ScreenHeight;
@@ -270,6 +273,7 @@ private:
 	//lighting functions
 	void ComputeLighting(std::shared_ptr<Light>& light)
 	{
+
 		Uint8 obj_col[4];
 		obj_col[0] = (light->light_col & 0xFF000000) >> 24;
 		obj_col[1] = (light->light_col & 0x00FF0000) >> 16;
@@ -284,47 +288,55 @@ private:
 			PointLightSetup& pl = dynamic_cast<PointLightSetup&>(*light);
 
 			if (pl.diffuse_type == Diffuse_Type::Gouraud_Shading || pl.diffuse_type == Diffuse_Type::Flat_Shading) {
+				
 				for (auto& t : rastertriangles) {
-					for (int i = 0; i < 3; ++i)		//for each vertex
+					
+					for (int i = 0; i < 3; ++i)		//for each vertex of each triangle
 					{
 						//ambient
 						double amb_k = pl.amb_constant;
+						
 						//attenuation
-						Vector3f to_light = pl.lightpos - t.viewpoints[i];
+						Vector3f to_light =  pl.lightpos - t.worldpoints[i];
+					
 						double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
 						double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
-						to_light.Normalize();	//normalize
+						to_light.Normalize();
+						
 						//diffuse
 						double diff_k;
+						
 						if (pl.diffuse_type == Diffuse_Type::Gouraud_Shading)
 						{
 							//gouraud
-							diff_k = std::max(0.0f, to_light.getNormalized().getDotProduct(t.v_normal[i].getNormalized()));
+							diff_k = std::max( 0.0f, to_light.getDotProduct(t.v_normal[i]));
 						}
 
 						else
 						{
 							//flat shading
-							diff_k = std::max(0.0f, to_light.getNormalized().getDotProduct(t.s_normal.getNormalized()));
+							diff_k = std::max(0.0f, to_light.getDotProduct(t.s_normal.getNormalized()));
 						}
 
 						//specular
-						Vector3f ViewVec = camerapos - t.viewpoints[i];
-						Vector3f w = to_light * 2.0 * t.v_normal[i].getNormalized().getDotProduct(to_light);
+						Vector3f ViewVec =  camerapos - t.worldpoints[i];
+						Vector3f w = t.v_normal[i] * 2.0 * t.v_normal[i].getDotProduct(to_light);
 						Vector3f r = w - to_light;
+
+						//( R . V ) ^ shininess
 						double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
 
-						if (spec_k > 1.0f)
+						if (spec_k > 1.0)
 						{
-							spec_k = 1.0f;
+							spec_k = 1.0;
 						}
+						
+						double f = (amb_k + attenuation * (diff_k +(spec_k * pl.spec_intensity)));
 
-						double f = (amb_k + attenuation * (diff_k + (spec_k * pl.spec_intensity)));
-
-						for (int j = 1; j < 4; ++j)
+						for (int j = 1; j < 4; ++j)	//compute rgb for each vertex
 						{
 							int c = obj_col[j] * f;
-							if (c > 255) c = 255;
+							if (c >= 255) c = 255;
 							temp[j] = c;
 						}
 
@@ -349,6 +361,8 @@ private:
 				for (auto& t : rastertriangles) {
 					for (int i = 0; i < 3; ++i)		//for each vertex
 					{
+						Uint8 temp[4];	//temporary to modify colors
+						temp[0] = obj_col[0];
 						//ambient
 						double amb_k = dl.amb_constant;
 
@@ -358,7 +372,7 @@ private:
 						{
 							//gouraud
 
-							diff_k = std::max(0.0f, dl.lightdir.getNormalized().getDotProduct(t.v_normal[i].getNormalized()));
+							diff_k = std::max(0.0f, dl.lightdir.getNormalized().getDotProduct(t.v_normal[i]));
 						}
 
 						else {

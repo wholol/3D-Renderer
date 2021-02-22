@@ -2,7 +2,7 @@
 
 void VertexShader::setProjectionMatrix(float FovDegrees, float Near, float Far, unsigned int ScreenHeight, unsigned int ScreenWidth)
 {
-	float AspectRatio = ((float)ScreenHeight / (float)ScreenWidth);
+	float AspectRatio = ((float)ScreenWidth / (float)ScreenHeight);
 	this->ScreenHeight = ScreenHeight;
 	this->ScreenWidth = ScreenWidth;
 	ProjMat = Mat3f::Projection(Near, Far, AspectRatio, FovDegrees);
@@ -22,7 +22,7 @@ void VertexShader::setViewMatrix(Vector3f & camerapos, Vector3f & lookDir)
 
 void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,std::shared_ptr<Light> light, bool testforcull)
 {
-	for (int i = 0; i < indexbuffer.size(); i += 3)
+	for (int i = 0u; i < indexbuffer.size(); i += 3)
 	{
 		int a = indexbuffer[i];
 		int b = indexbuffer[i + 1];
@@ -32,10 +32,10 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 		Vector3f p2 = vertexbuffer[b];
 		Vector3f p3 = vertexbuffer[c];
 
-		//model to world transform
-		p1 = ModelMat * p1;
-		p2 = ModelMat * p2;
-		p3 = ModelMat * p3;
+		//model to world transform (vertex normals are used for lighting computation in view space).
+		p1 = ModelMat *  p1;
+		p2 = ModelMat *  p2;
+		p3 = ModelMat *  p3;
 
 		Vector3f line1 = p3 - p1;
 		Vector3f line2 = p2 - p1;
@@ -62,9 +62,15 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 
 		//setup triangle params (geotemtry shader)
 		triangle temp;
+
 		temp.points[0] = p1;
 		temp.points[1] = p2;
 		temp.points[2] = p3;
+
+		//store world positions (for lighting computation)
+		temp.worldpoints[0] = p1;
+		temp.worldpoints[1] = p2;
+		temp.worldpoints[2] = p3;
 
 		Vector3f line1 = p3 - p1;
 		Vector3f line2 = p2 - p1;
@@ -81,13 +87,14 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 			temp.norm_end[2] = temp.points[2] + temp.v_normal[2] * 0.5;
 
 			WorldtoCameraTransform(temp);
-			//TODO:Z plane clipping here
-			temp.viewpoints[0] = temp.points[0];
-			temp.viewpoints[1] = temp.points[1];
-			temp.viewpoints[2] = temp.points[2];
+	
+			temp.viewpoints[0] = ViewMat * temp.points[0];
+			temp.viewpoints[1] = ViewMat * temp.points[1];
+			temp.viewpoints[2] = ViewMat * temp.points[2];
 
 			triangle new_tris[2];
 			int num_tris = trianglestoclip(Vector3f{ 0.0f , 0.0f , 1.0f }, Vector3f{ 0.0f , 0.0f , 1.0f }, temp, new_tris[0], new_tris[1]);	//clip agaisnt z axis
+			
 			for (int i = 0; i < num_tris; ++i)
 			{
 				NDCTransform(new_tris[i]);
@@ -97,7 +104,7 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 		}
 	}
 
-	ComputeLighting(light);
+	ComputeLighting(light);	//computes the lighting at the vertices
 }
 
 std::vector<triangle>& VertexShader::getRasterTriangles()

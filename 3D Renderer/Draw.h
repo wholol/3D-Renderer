@@ -6,6 +6,8 @@
 #include <iostream>
 #include "LightSetup.h"
 #include <vector>
+#include "ScreenSize.h"
+
 class Draw {
 
 public:
@@ -102,14 +104,23 @@ public:
 
 	static void drawline(SDL_Surface* surface, double x0, double y0, double x1, double y1, Uint32 color = 0xFFFFFF)
 	{
+
+		
 		for (double t = 0; t <= 1.0; t += .01) {
 			double x = x0 + (x1 - x0)*t;
 			double y = y0 + (y1 - y0)*t;
-			if (x <= 0) x = 0;
-			if (x >= 799) x = 799;
-			if (y <= 0) y = 0;
-			if (y >= 599) y = 599;
-			putpixel(surface, x, y, color);
+
+			if (x <= 0)	{}
+		
+			else if (x >= SCREENWIDTH - 1) {}
+			
+			else if (y <= 0)	{}
+
+			else if (y >= SCREENHEIGHT - 1) {}
+			
+			else {
+				putpixel(surface, x, y, color);
+			}
 			
 		}
 	}

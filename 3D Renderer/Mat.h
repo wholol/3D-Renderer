@@ -102,9 +102,32 @@ public:
 
 	static Mat3<T> Projection(T Near, T Far, T AspectRatio, T FOV) {			//projectio matrix
 		Mat3<T> Projection;
-		T FovRad = 1.0f / tanf(FOV * 0.5f / 180.0f * 3.14159f);
-		Projection.cells[0][0] = AspectRatio * FovRad;
-		Projection.cells[1][1] = FovRad;
+		
+		//T FovRad = 1.0f / tanf(FOV * 0.5f / 180.0f * 3.14159f);
+		//Projection.cells[0][0] = AspectRatio * FovRad;
+		//Projection.cells[1][1] = FovRad;
+		//Projection.cells[2][2] = Far / (Far - Near);
+		//Projection.cells[2][3] = (-Far * Near) / (Far - Near);
+		//Projection.cells[3][2] = 1.0f;
+		//Projection.cells[3][3] = 0.0f;
+
+
+		float Deg2Rad = 3.14159f / 180.0f;
+		T t = tanf(FOV * 0.5 * Deg2Rad) * Near;
+		T b = -t;
+		T r = tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
+		T l = -tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
+		
+		Projection.cells[0][0] = 2 * Near / (r - l);
+		Projection.cells[0][2] = ( r + l )/ (r - l);
+		
+		Projection.cells[1][1] = ( 2 * Near )/ (t - b);
+		Projection.cells[1][2] = (t + b) / (t - b);
+		
+		Projection.cells[2][2] = - (Far + Near) / (Far - Near);
+		Projection.cells[2][3] = (2 * Far * Near) / (Far - Near);
+		Projection.cells[3][2] = -1.0f;
+		
 		Projection.cells[2][2] = Far / (Far - Near);
 		Projection.cells[2][3] = (-Far * Near) / (Far - Near);
 		Projection.cells[3][2] = 1.0f;
@@ -119,23 +142,23 @@ public:
 
 		const Vector3<T> tmp(0.0, 1.0f, 0.0f);		//if forward = (0,0,1), tmp = (0,1,0), then ortho should be (1,0,0)
 		
-		Vector3<T> Ortho = Forward.getCrossProduct(tmp);
+		Vector3<T> Right = Forward.getCrossProduct(tmp);
 
-		Vector3<T> Up = Forward.getCrossProduct(Ortho);
+		Vector3<T> Up = Forward.getCrossProduct(Right);
 
 		/*matrix setup*/
 		Mat3<T> CameraPointTo;
-		CameraPointTo.cells[0][0] = Ortho.x;
+		CameraPointTo.cells[0][0] = Right.x;
 		CameraPointTo.cells[0][1] = Up.x;
 		CameraPointTo.cells[0][2] = Forward.x;
 		CameraPointTo.cells[0][3] = camerapos.x;
 
-		CameraPointTo.cells[1][0] = Ortho.y;
+		CameraPointTo.cells[1][0] = Right.y;
 		CameraPointTo.cells[1][1] = Up.y;
 		CameraPointTo.cells[1][2] = Forward.y;
 		CameraPointTo.cells[1][3] = camerapos.y;
 
-		CameraPointTo.cells[2][0] = Ortho.z;
+		CameraPointTo.cells[2][0] = Right.z;
 		CameraPointTo.cells[2][1] = Up.z;
 		CameraPointTo.cells[2][2] = Forward.z;
 		CameraPointTo.cells[2][3] = camerapos.z;

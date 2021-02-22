@@ -1,4 +1,5 @@
 #include "PhongFlat_Frag.h"
+#include "ScreenSize.h"
 
 void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, Vector3f lightdir,Uint32 color)
 {
@@ -99,7 +100,9 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 	int yEnd = (int)p2_y;
 
 	if (yStart <= 1) { yStart = 1; }
-	if (yEnd >= 599) { yEnd = 599; }
+	if (yEnd >= SCREENHEIGHT - 1) {
+		yEnd = SCREENHEIGHT - 1;
+	}
 
 	for (int scanline = yStart; scanline <= yEnd; scanline++) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
@@ -112,7 +115,7 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) { xStart = 1; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xEnd >= SCREENWIDTH) { xEnd = SCREENWIDTH; }
 
 		double t = (double)(scanline - yEnd) / (double)(yStart - yEnd);
 
@@ -130,8 +133,8 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the begining
 				{
@@ -197,7 +200,7 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 	}
 
 	if (p2_y <= 0) { p2_y = 0; }
-	if (p3_y >= 599) { p3_y = 599; }
+	if (p3_y >= SCREENHEIGHT - 1) { p3_y = SCREENHEIGHT - 1; }
 
 	Vector3f Va, Vb, Vp;
 
@@ -226,7 +229,7 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) { xStart = 1; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xEnd >= SCREENWIDTH - 1) { xEnd = SCREENWIDTH - 1; }
 
 		double t = (double)(scanline - yEnd) / (double)(yStart - yEnd);
 
@@ -243,8 +246,8 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 			float t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the vertex
 				{
@@ -265,7 +268,7 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 
 				for (int j = 1; j < 4; ++j)
 				{
-					int c = light_src_rgba[j] * f;
+					int c = (int)(light_src_rgba[j] * f);
 					if (c > 255) c = 255;
 					final_light_rgba[j] = c;
 				}

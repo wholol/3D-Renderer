@@ -143,8 +143,8 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 			double t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the begining
 				{
@@ -158,13 +158,13 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 
 				//convert frag coords to world
 				Vector3f view(x, scanline, z_frag);
-				view = Mat3f::Scale(1 / (0.5 * 800), 1 / (0.5 * 600), 1) * view;
+				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
 				view = Mat3f::Translate(-1, -1, 0) * view;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
 				view.x /= w_frag;
 				view.y /= w_frag;
 				view.z /= w_frag;
-				view = Mat3f::Inverse(Mat) * view;
+				view = Mat * view;
 
 				//attentuation
 				Vector3f to_light = pl.lightpos - view;
@@ -275,7 +275,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) { xStart = 1; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xEnd >= SCREENWIDTH - 1) { xEnd = SCREENWIDTH - 1; }
 
 		double t = ((double)scanline - p2_y) / (double)(p3_y - p2_y);
 
@@ -292,8 +292,8 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 			double t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the vertex
 				{
@@ -307,7 +307,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 
 				//screen coord -> viewspace coord
 				Vector3f view(x, scanline, z_frag);
-				view = Mat3f::Scale(1 / (0.5 * 800), 1 / (0.5 * 600), 1) * view;
+				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
 				view = Mat3f::Translate(-1, -1, 0) * view;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
 
@@ -315,7 +315,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				view.y /= w_frag;
 				view.z /= w_frag;
 
-				view = Mat3f::Inverse(Mat) * view;
+				view = Mat * view;
 
 				//gotta invert the view mat
 				Vector3f to_light = pl.lightpos - view;

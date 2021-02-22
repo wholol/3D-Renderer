@@ -1,4 +1,5 @@
 #include "Gouraud_Frag.h"
+#include "ScreenSize.h"
 
 void Gouraud_Frag::filltriangle_gouraud(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Uint32 p1_color, Uint32 p2_color, Uint32 p3_color)
 {
@@ -93,7 +94,7 @@ void Gouraud_Frag::fillflatbottomtriangle_gouraud(SDL_Surface * surface, double 
 
 	double Ip[4], Ib[4], Ia[4];
 	if (p1_y <= 1) p1_y = 1;
-	if (p2_y >= 599) p2_y = 599;
+	if (p2_y >= SCREENHEIGHT - 1) p2_y = SCREENHEIGHT - 1;
 
 	int yStart = (int)p1_y;
 	int yEnd = (int)p2_y;
@@ -110,7 +111,7 @@ void Gouraud_Frag::fillflatbottomtriangle_gouraud(SDL_Surface * surface, double 
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) xStart = 1;
-		if (xEnd >= 799) xEnd = 799;
+		if (xEnd >= SCREENWIDTH - 1) xEnd = SCREENWIDTH - 1;
 
 		//goroud calculation : https://www.youtube.com/watch?v=06p86OrTGLc&t=233s&ab_channel=raviramamoorthi
 		//vertex side intensity
@@ -136,8 +137,8 @@ void Gouraud_Frag::fillflatbottomtriangle_gouraud(SDL_Surface * surface, double 
 			double t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 				if ((xStart - xEnd) == 0)	//if the point is at the vertex
 				{
 					Ip[0] = (p1_color & 0xFF000000) >> 24;
@@ -153,6 +154,7 @@ void Gouraud_Frag::fillflatbottomtriangle_gouraud(SDL_Surface * surface, double 
 						Ip[i] = (Ia[i] * t_x) + (Ib[i] * (1.0 - t_x));
 					}
 				}
+			
 				Draw::putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
 			}
 		}
@@ -196,7 +198,7 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 
 	double Ip[4], Ib[4], Ia[4];
 	if (p2_y <= 1) p2_y = 1;
-	if (p3_y >= 599) p3_y = 599;
+	if (p3_y >= SCREENHEIGHT - 1) p3_y = SCREENHEIGHT - 1;
 
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
@@ -211,7 +213,7 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 		int xStart = (int)px1;
 		int xEnd = (int)px2;
 		if (xStart <= 1) xStart = 1;
-		if (xEnd >= 799) xEnd = 799;
+		if (xEnd >= SCREENWIDTH - 1) xEnd = SCREENWIDTH - 1;
 
 		double t = ((double)scanline - p2_y) / (p3_y - p2_y);
 
@@ -234,8 +236,8 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 			double t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
 
 				if ((xStart - xEnd) == 0)	//if the point is at the vertex
 				{
@@ -252,7 +254,10 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 						Ip[i] = (Ia[i] * t_x) + (Ib[i] * (1.0 - t_x));
 					}
 				}
+
 				Draw::putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
+
+				
 			}
 		}
 	}

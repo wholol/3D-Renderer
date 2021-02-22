@@ -1,4 +1,5 @@
 #include "FlatShading_Frag.h"
+#include "ScreenSize.h"
 
 void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Uint32 color)
 {
@@ -74,8 +75,8 @@ void FlatShading_Frag::fillflatbottomtriangle_flat(SDL_Surface * surface, double
 		slope_2_z = dz2 / dy;
 	}
 
-	if (p1_y <= 0) { p1_y = 0; }
-	if (p2_y >= 599) { p2_y = 599; }
+	if (p1_y <= 1) { p1_y = 1; }
+	if (p2_y >= SCREENHEIGHT - 1) { p2_y = SCREENHEIGHT - 1; }
 
 	for (int scanline = p1_y; scanline <= p2_y; scanline++) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
@@ -87,17 +88,17 @@ void FlatShading_Frag::fillflatbottomtriangle_flat(SDL_Surface * surface, double
 		int xStart = (int)px1;
 		int xEnd = (int)px2;
 
-		if (xStart <= 0) { xStart = 0; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xStart <= 1) { xStart = 1; }
+		if (xEnd >= 800) { xEnd = 799; }
 
 		for (int x = xStart; x <= xEnd; ++x) {
 
 			double t = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t + zEnd * (1.0 - t);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
-				Draw::putpixel(surface, x, scanline, color);
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
+					Draw::putpixel(surface, x, scanline, color);
 			}
 		}
 	}
@@ -136,7 +137,7 @@ void FlatShading_Frag::fillflattoptriangle_flat(SDL_Surface * surface, double p2
 		slope_2_z = dz2 / dy;
 	}
 
-	if (p2_y <= 0) { p2_y = 0; }
+	if (p2_y <= 1) { p2_y = 1; }
 	if (p3_y >= 599) { p3_y = 599; }
 
 	for (int scanline = p3_y; scanline >= p2_y; scanline--) {
@@ -149,17 +150,17 @@ void FlatShading_Frag::fillflattoptriangle_flat(SDL_Surface * surface, double p2
 		int xStart = (int)px1;
 		int xEnd = (int)px2;
 
-		if (xStart <= 0) { xStart = 0; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xStart <= 1) { xStart = 1; }
+		if (xEnd >= SCREENWIDTH - 1 ) { xEnd = SCREENWIDTH - 1; }
 
 		for (int x = xStart; x <= xEnd; ++x) {
 
 			double t_x = (double)(xEnd - x) / (double)(xEnd - xStart);
 			double z_frag = zStart * t_x + zEnd * (1.0 - t_x);
 
-			if (ZBuffer[x + 800 * scanline] > z_frag) {
-				ZBuffer[x + 800 * scanline] = z_frag;
-				Draw::putpixel(surface, x, scanline, color);
+			if (ZBuffer[x + SCREENWIDTH * scanline] > z_frag) {
+				ZBuffer[x + SCREENWIDTH * scanline] = z_frag;
+					Draw::putpixel(surface, x, scanline, color);
 			}
 		}
 	}

@@ -12,7 +12,7 @@ struct Light
 	}
 	virtual void setSpecular(float exponent, float intensity)
 	{
-		spec_exponent = exponent;
+		spec_exponent = exponent;	//shininess (ho concentrated is the spot)
 		spec_intensity = intensity;
 	}
 
