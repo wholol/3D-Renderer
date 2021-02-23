@@ -53,16 +53,14 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 void Application::Render()
 {
 	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), curr_light, cam, vs.ProjMat, vs.ViewMat);
-	
 }
 
 void Application::Update()
 {
-	
 	rotateX += 0.002;
-	rotateY += 0.002;
+	rotateZ += 0.002;
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
-	transform = transform * Mat3f::RotateY(rotateY);
+	transform = transform * Mat3f::RotateZ(rotateZ);
 	transform = transform * Mat3f::RotateX(rotateX);
 
 	vs.setViewMatrix(cam, lookDir);

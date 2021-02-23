@@ -6,7 +6,7 @@
 #include <iostream>
 #include "LightSetup.h"
 #include <vector>
-#include "ScreenSize.h"
+#include "src/Core/ScreenSize.h"
 
 class Draw {
 

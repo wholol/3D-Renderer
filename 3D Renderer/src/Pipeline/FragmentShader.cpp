@@ -1,6 +1,6 @@
 #include "FragmentShader.h"
 #include "Draw.h"
-#include "ScreenSize.h"
+#include "src/Core/ScreenSize.h"
 #include "PhongFlat_Frag.h"
 #include "Gouraud_Frag.h"
 #include "FlatShading_Frag.h"

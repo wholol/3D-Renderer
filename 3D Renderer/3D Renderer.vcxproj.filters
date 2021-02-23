@@ -15,89 +15,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\Core\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
+    <ClCompile Include="src\Core\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FragmentShader.cpp">
+    <ClCompile Include="src\LightingShaders\FlatShading_Frag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PhongFlat_Frag.cpp">
+    <ClCompile Include="src\LightingShaders\Gouraud_Frag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gouraud_Frag.cpp">
+    <ClCompile Include="src\LightingShaders\PhongFlat_Frag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlatShading_Frag.cpp">
+    <ClCompile Include="src\LightingShaders\PhongPoint_Frag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PhongPoint_Frag.cpp">
+    <ClCompile Include="src\Pipeline\FragmentShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="src\Pipeline\VertexShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Draw.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadModel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tiny_obj_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Diffuse_type.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LightSetup.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light_Type.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mat.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="normals.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexShader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FragmentShader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenSize.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="triangle.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PhongFlat_Frag.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PhongPoint_Frag.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gouraud_Frag.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FlatShading_Frag.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -158,8 +101,62 @@
     <ClInclude Include="src\VertexShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2.h">
+    <ClInclude Include="src\Core\Application.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Light\LightSetup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pipeline\LoadModel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightingShaders\FlatShading_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightingShaders\Gouraud_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightingShaders\PhongFlat_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightingShaders\PhongPoint_Frag.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Vector3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Vector2.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Mat.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pipeline\FragmentShader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pipeline\VertexShader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Light\Light_Type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Light\Diffuse_type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ScreenSize.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pipeline\tiny_obj_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Profiler\Timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pipeline\triangle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightingShaders\Draw.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

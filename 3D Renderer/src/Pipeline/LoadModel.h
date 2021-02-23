@@ -14,10 +14,13 @@ public:
 	std::vector<Vector3f> vertexbuffer;
 	std::vector<Vector3f> vertexnormbuffer;
 	std::vector<int> indexbuffer;
+	std::string path = "src/Models/";
 	
 public:
 	void loadFromFile(const std::string& objfile)
 	{
+	
+
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -25,7 +28,7 @@ public:
 		std::string warn;
 		std::string err;
 
-		bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objfile.c_str());
+		bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (path + objfile).c_str());
 
 		if (!warn.empty()) {
 			std::cout << warn << std::endl;

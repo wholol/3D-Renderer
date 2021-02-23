@@ -34,7 +34,7 @@ private:
 	Vector3f cam = { 0 , 0, 0 };
 	unsigned int screenwidth, screenheight;
 	float rotateX = 0.0f;
-	float rotateY = 0.0f;
+	float rotateZ = 0.0f;
 	float fYaw = 0.0f;
 	int x = 20;
 	int y = 20;

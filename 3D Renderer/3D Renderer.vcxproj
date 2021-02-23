@@ -91,7 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -128,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -161,27 +161,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="FlatShading_Frag.cpp" />
-    <ClCompile Include="FragmentShader.cpp" />
-    <ClCompile Include="Gouraud_Frag.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="PhongFlat_Frag.cpp" />
-    <ClCompile Include="PhongPoint_Frag.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\LightingShaders\FlatShading_Frag.cpp" />
+    <ClCompile Include="src\Pipeline\FragmentShader.cpp" />
+    <ClCompile Include="src\LightingShaders\Gouraud_Frag.cpp" />
+    <ClCompile Include="src\Core\main.cpp" />
+    <ClCompile Include="src\LightingShaders\PhongFlat_Frag.cpp" />
+    <ClCompile Include="src\LightingShaders\PhongPoint_Frag.cpp" />
+    <ClCompile Include="src\Pipeline\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Diffuse_type.h" />
-    <ClInclude Include="Draw.h" />
-    <ClInclude Include="FlatShading_Frag.h" />
-    <ClInclude Include="FragmentShader.h" />
-    <ClInclude Include="Gouraud_Frag.h" />
-    <ClInclude Include="Light_Type.h" />
-    <ClInclude Include="LoadModel.h" />
-    <ClInclude Include="Mat.h" />
-    <ClInclude Include="PhongFlat_Frag.h" />
-    <ClInclude Include="PhongPoint_Frag.h" />
+    <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Light\Diffuse_type.h" />
+    <ClInclude Include="src\LightingShaders\Draw.h" />
+    <ClInclude Include="src\LightingShaders\FlatShading_Frag.h" />
+    <ClInclude Include="src\Pipeline\FragmentShader.h" />
+    <ClInclude Include="src\LightingShaders\Gouraud_Frag.h" />
+    <ClInclude Include="src\Light\Light_Type.h" />
+    <ClInclude Include="src\Pipeline\LoadModel.h" />
+    <ClInclude Include="src\Math\Mat.h" />
+    <ClInclude Include="src\LightingShaders\PhongFlat_Frag.h" />
+    <ClInclude Include="src\LightingShaders\PhongPoint_Frag.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Diffuse_type.h" />
     <ClInclude Include="src\Draw.h" />
@@ -202,15 +202,14 @@
     <ClInclude Include="src\Vector2.h" />
     <ClInclude Include="src\Vector3.h" />
     <ClInclude Include="src\VertexShader.h" />
-    <ClInclude Include="triangle.h" />
-    <ClInclude Include="normals.h" />
-    <ClInclude Include="LightSetup.h" />
-    <ClInclude Include="ScreenSize.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="tiny_obj_loader.h" />
-    <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Vector3.h" />
-    <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="src\Pipeline\triangle.h" />
+    <ClInclude Include="src\Light\LightSetup.h" />
+    <ClInclude Include="src\Core\ScreenSize.h" />
+    <ClInclude Include="src\Profiler\Timer.h" />
+    <ClInclude Include="src\Pipeline\tiny_obj_loader.h" />
+    <ClInclude Include="src\Math\Vector2.h" />
+    <ClInclude Include="src\Math\Vector3.h" />
+    <ClInclude Include="src\Pipeline\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />

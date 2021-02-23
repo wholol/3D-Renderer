@@ -1,5 +1,5 @@
 #include "FlatShading_Frag.h"
-#include "ScreenSize.h"
+#include "src/Core/ScreenSize.h"
 
 void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Uint32 color)
 {
