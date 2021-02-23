@@ -26,14 +26,18 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	
 	surface = SDL_GetWindowSurface(window);
 	
-	model.loadFromFile("sphere.obj");
+	model.loadFromFile("suzanne.obj");
+	
+	//projection matrix setup
+	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
+
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
 	pl->setAmbient(0.1f);
 	pl->setDiffuse(Diffuse_Type::Phong_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
 	
-	pl->setSpecular(1.0f ,10.0f);
+	pl->setSpecular(0.7f ,10.0f);
 	pl->setLightPos({ 0.0f, 0.0f, -10.0f });
 	pl->setLightCol(SDL_MapRGB(surface->format, 200, 255, 255));
 
@@ -42,26 +46,34 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	dl->setDiffuse(Diffuse_Type::Gouraud_Shading);
 	dl->setLightDir({ 0.0f , 0.0f , -1.0f });
 	dl->setLightCol(SDL_MapRGB(surface->format, 200, 255, 255));	
+
+	curr_light = dl;	//initialzi curr light.
 }
 
 void Application::Render()
 {
-	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), pl, cam, vs.ProjMat, vs.ViewMat);
-	rotateX += 0.002;
-	rotateY += 0.002;
+	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), curr_light, cam, vs.ProjMat, vs.ViewMat);
+	
 }
 
 void Application::Update()
 {
+	
+	rotateX += 0.002;
+	rotateY += 0.002;
 	Mat3f transform = Mat3f::Translate(0, 0, 5);
 	transform = transform * Mat3f::RotateY(rotateY);
-	//transform = transform * Mat3f::RotateX(rotateX);
+	transform = transform * Mat3f::RotateX(rotateX);
 
 	vs.setViewMatrix(cam, lookDir);
-	vs.setProjectionMatrix(90.0f, 1.0f, 50.0f, SCREENHEIGHT, SCREENWIDTH);
 	vs.setTransformMatrix(transform);
-	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, pl);
+	vs.ProcessPrimitive(model.indexbuffer, model.vertexbuffer, model.vertexnormbuffer, curr_light);
 
+	
+	
+	
+	//controls
+	
 	const Uint8 *kstate = SDL_GetKeyboardState(NULL);
 	
 	if (kstate[SDL_SCANCODE_UP]) {
@@ -96,6 +108,16 @@ void Application::Update()
 	if (kstate[SDL_SCANCODE_O]) {
 		pl->lightpos += {0.0, -0.05f, 0.0f};
 	}
+
+	if (kstate[SDL_SCANCODE_T]) {
+		curr_light = dl;
+	}
+
+	if (kstate[SDL_SCANCODE_R]) {
+		curr_light = pl;
+	}
+
+
 
 
 	
