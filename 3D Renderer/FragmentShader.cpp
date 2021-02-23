@@ -64,19 +64,16 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 	{
 		PointLightSetup& pl = dynamic_cast<PointLightSetup&>(*light);
 
-		Mat3f ProjMat_inv;		//used to convert screen space to view space for each fragment
-		ProjMat_inv = Mat3f::Inverse(ProjMat);
-
-		Vector3f pl_worldpos = pl.lightpos;	//store pl world pos.
+		Mat3f VP = ViewMat * ProjMat;		
 		
-		pl.lightpos = ViewMat * pl.lightpos;	//transform lightpos to world space. (more effiencient to do it before rasterization)
+		Mat3f VP_inv = Mat3f::Inverse(VP);
 
 		for (auto& t : rastertriangles)
 		{
 
 			PhongPoint_Frag::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
 				t.w[2], camerapos,
-				 ZBuffer, ProjMat_inv,
+				 ZBuffer, VP_inv,
 				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, objcolor);
 
 			if (wireframe)
@@ -84,7 +81,6 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
 			}
 		}
-		pl.lightpos = pl_worldpos;	//change back to world pos after rasterization.
 	}
 
 	if (draw_normals)

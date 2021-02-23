@@ -30,7 +30,7 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 	//init lighting
 	pl = std::make_shared<PointLightSetup>();	//create a new light source
 	pl->setAmbient(0.1f);
-	pl->setDiffuse(Diffuse_Type::Gouraud_Shading);
+	pl->setDiffuse(Diffuse_Type::Phong_Shading);
 	pl->setAttenuation(0.01f, 0.5f, 0.382f);
 	
 	pl->setSpecular(1.0f ,10.0f);
@@ -47,14 +47,8 @@ Application::Application(const std::string& title, int xpos, int ypos, int Scree
 void Application::Render()
 {
 	fs.Process(surface, model.vertexnormbuffer, vs.getRasterTriangles(), SDL_MapRGB(surface->format, 200, 255, 255), pl, cam, vs.ProjMat, vs.ViewMat);
-
-	//pipeline.setTransformations(transform);
-	//pipeline.setCamera(cam, lookDir);
-	//pipeline.setProjectionParams(90.0f, 1.0f, 50.0f, screenheight, screenwidth);
-	//pipeline.setupTriangles( model.indexbuffer , model.vertexbuffer , model.vertexnormbuffer);
 	rotateX += 0.002;
 	rotateY += 0.002;
-	//pipeline.Draw(surface,model.vertexnormbuffer, SDL_MapRGB(surface->format, 200, 255, 255),dl,true,true);
 }
 
 void Application::Update()

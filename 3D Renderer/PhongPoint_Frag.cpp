@@ -156,8 +156,10 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
 
+				Vp.Normalize();
+
 				//convert frag coords to world
-				Vector3f view(x, scanline, z_frag);
+				Vector3f view(x, scanline, z_frag);	//screen space
 				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
 				view = Mat3f::Translate(-1, -1, 0) * view;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
@@ -170,17 +172,17 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 				Vector3f to_light = pl.lightpos - view;
 				double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
 				double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
-				to_light.Normalize();	//normalize
+				to_light.Normalize();
 
 				//ambient
 				double amb_k = pl.amb_constant;
 
 				//diffuse
-				double diff_k = std::max(0.0f, to_light.getNormalized().getDotProduct(Vp.getNormalized()));
+				double diff_k = std::max(0.0f, to_light.getDotProduct(Vp));
 
 				//specular
 				Vector3f ViewVec = camerapos - view;
-				Vector3f w = to_light * 2.0 * Vp.getNormalized().getDotProduct(to_light);
+				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
 				double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
 
@@ -305,6 +307,8 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
 
+				Vp.Normalize();
+
 				//screen coord -> viewspace coord
 				Vector3f view(x, scanline, z_frag);
 				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
@@ -327,11 +331,11 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				double amb_k = pl.amb_constant;
 
 				//diffuse
-				double diff_k = std::max(0.0f, to_light.getNormalized().getDotProduct(Vp.getNormalized()));
+				double diff_k = std::max(0.0f, to_light.getDotProduct(Vp));
 
 				//specular
 				Vector3f ViewVec = camerapos - view;
-				Vector3f w = to_light * 2.0 * Vp.getNormalized().getDotProduct(to_light);
+				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
 				double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
 
