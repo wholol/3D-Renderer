@@ -215,7 +215,7 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
 
-	if (yStart >= 599) { yStart = 599; }
+	if (yStart >= SCREENHEIGHT -1 ) { yStart = SCREENHEIGHT - 1; }
 	if (yEnd <= 1) { yEnd = 1; }
 
 	for (int scanline = yStart; scanline > yEnd; scanline--) {

@@ -253,17 +253,6 @@ void Application::Update()
 		cam.y -= 0.05f;
 	}
 
-	if (kstate[SDL_SCANCODE_O]) {
-		pl->lightpos += {0.0, -0.05f, 0.0f};
-	}
-
-	if (kstate[SDL_SCANCODE_T]) {
-		curr_light = dl;
-	}
-
-	if (kstate[SDL_SCANCODE_R]) {
-		curr_light = pl;
-	}
 	
 	SDL_RenderClear(renderer);
 	SDL_FillRect(surface, 0, 0);
