@@ -2,9 +2,20 @@
 CPU based renderer/software rasterizer from scratch. SDL2 is used for input handling.  
 Types of diffuse shading includes Flat shading, Gouraud shading and Phong shading.  
 
-things that are not done:  
-code cleanup, texture mapping.
+TBD: texture mapping, probably abstract UI and Camera
 
+<img src="3D Renderer/images/application.png">
+
+## Dependencies
+<ul>
+  <li><a href="https://github.com/Tyyppi77/imgui_sdl">imgui_sdl</a> (included in this repo)</li>  
+  <li><a href="https://github.com/ocornut/imgui">imgui</a> (included in this repo)</li>  
+  <li><a href="https://github.com/tinyobjloader/tinyobjloader">tinyobjloader</a> (included in this repo)</li>  
+  <li><a href="https://www.libsdl.org/">SDL</a> (NOT included in this repo)</li>  
+</ul>
+
+
+   
 
 ## Features  
 ### Backface culling
