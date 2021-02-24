@@ -16,9 +16,15 @@ struct Light
 		spec_intensity = intensity;
 	}
 
-	double amb_constant;
-	double spec_exponent;
-	double spec_intensity;
+	void setLightCol(Uint32 lightcol)
+	{
+		light_col = lightcol;
+	}
+
+
+	float amb_constant;
+	float spec_exponent;
+	float spec_intensity;
 	Diffuse_Type diffuse_type;
 	Light_Type light_type;
 	Uint32 light_col;
@@ -34,11 +40,6 @@ struct PointLightSetup : Light
 	void setDiffuse(Diffuse_Type type) override
 	{
 		diffuse_type = type;
-	}
-
-	void setLightCol(Uint32 lightcol)
-	{
-		light_col = lightcol;
 	}
 
 	void setLightPos(Vector3f light_pos)
@@ -66,11 +67,6 @@ struct DirectionalLightSetup : Light
 	void setDiffuse(Diffuse_Type type) override		
 	{
 		diffuse_type = type;
-	}
-
-	void setLightCol(Uint32 lightcol)
-	{
-		light_col = lightcol;
 	}
 
 	void setLightDir(Vector3f light_dir)

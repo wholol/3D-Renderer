@@ -1,59 +1,61 @@
 #include "PhongPoint_Frag.h"
 
-void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p3_x, double p3_y, double p3_z, double p3_w, Vector3f & camerapos, std::vector<double>& ZBuffer, Mat3f Mat, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, PointLightSetup & pl, Uint32 color)
-{
-	if (p2_y < p1_y) {
-		std::swap(p2_y, p1_y);
-		std::swap(p2_x, p1_x);
-		std::swap(p2_z, p1_z);
-		std::swap(p2_w, p1_w);
-		std::swap(v2_vertex, v1_vertex);
-	}
-
-	if (p3_y < p1_y) {
-		std::swap(p3_y, p1_y);
-		std::swap(p3_x, p1_x);
-		std::swap(p3_z, p1_z);
-		std::swap(p3_w, p1_w);
-		std::swap(v3_vertex, v1_vertex);
-	}
-
-	if (p3_y < p2_y) {
-		std::swap(p3_y, p2_y);
-		std::swap(p3_x, p2_x);
-		std::swap(p3_z, p2_z);
-		std::swap(p3_w, p2_w);
-		std::swap(v3_vertex, v2_vertex);
-	}
-
-	if (p1_y == p2_y)
+void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface* surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p3_x, double p3_y, double p3_z, double p3_w, Vector3f& camerapos,
+	std::vector<double>& ZBuffer, Mat3f& Mat, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, PointLightSetup& pl, Uint32 color)
 	{
-		fillflattoptriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
-	}
+		if (p2_y < p1_y) {
+			std::swap(p2_y, p1_y);
+			std::swap(p2_x, p1_x);
+			std::swap(p2_z, p1_z);
+			std::swap(p2_w, p1_w);
+			std::swap(v2_vertex, v1_vertex);
+		}
 
-	else if (p2_y == p3_y)
-	{
-		fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
-	}
+		if (p3_y < p1_y) {
+			std::swap(p3_y, p1_y);
+			std::swap(p3_x, p1_x);
+			std::swap(p3_z, p1_z);
+			std::swap(p3_w, p1_w);
+			std::swap(v3_vertex, v1_vertex);
+		}
 
-	else {
+		if (p3_y < p2_y) {
+			std::swap(p3_y, p2_y);
+			std::swap(p3_x, p2_x);
+			std::swap(p3_z, p2_z);
+			std::swap(p3_w, p2_w);
+			std::swap(v3_vertex, v2_vertex);
+		}
 
-		double x4 = (double)p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
-		double z4 = (double)p1_z + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_z - p1_z);		//determine the oposite end of the triangle bottom/top
-		double w4 = (double)p1_w + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_w - p1_w);		//determine the oposite end of the triangle bottom/top
-		double t = (double)(p3_y - p2_y) / (double)(p3_y - p1_y);
+		if (p1_y == p2_y)
+		{
+			fillflattoptriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
+		}
 
-		Vector3f v4_vertex = v3_vertex * (1.0 - t) + v1_vertex * t;
-		v4_vertex.Normalize();
+		else if (p2_y == p3_y)
+		{
+			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
+		}
 
-		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
-		//note that p2y is the middle, and it will be used for both sides).
-		fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, x4, p3_y, z4, w4, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v4_vertex, pl, color);
-		fillflattoptriangle_phong_point(surface, p2_x, p2_y, p2_z, p2_w, x4, p1_y, z4, w4, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v4_vertex, v2_vertex, v3_vertex, pl, color);
-	}
+		else {
+
+			double x4 = (double)p1_x + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_x - p1_x);		//determine the oposite end of the triangle bottom/top
+			double z4 = (double)p1_z + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_z - p1_z);		//determine the oposite end of the triangle bottom/top
+			double w4 = (double)p1_w + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_w - p1_w);		//determine the oposite end of the triangle bottom/top
+			double t = (double)(p3_y - p2_y) / (double)(p3_y - p1_y);
+
+			Vector3f v4_vertex = v3_vertex * (1.0 - t) + v1_vertex * t;
+			v4_vertex.Normalize();
+
+			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
+			//note that p2y is the middle, and it will be used for both sides).
+			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, x4, p3_y, z4, w4, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v4_vertex, pl, color);
+			fillflattoptriangle_phong_point(surface, p2_x, p2_y, p2_z, p2_w, x4, p1_y, z4, w4, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v4_vertex, v2_vertex, v3_vertex, pl, color);
+		}
 }
 
-void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p3_y, double p4_z, double p4_w, std::vector<double>& ZBuffer, Mat3f & Mat, Vector3f & camerapos, Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, PointLightSetup & pl, Uint32 color)
+void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p3_y, double p4_z, double p4_w, std::vector<double>& ZBuffer, Mat3f & Mat, Vector3f & camerapos, 
+	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, PointLightSetup & pl, Uint32 color)
 {
 	//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -110,7 +112,7 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 	int yEnd = p2_y;
 
 	if (yStart <= 1) { yStart = 1; }
-	if (yEnd >= 599) { yEnd = 599; }
+	if (yEnd >= SCREENHEIGHT - 1) { yEnd = SCREENHEIGHT - 1; }
 
 	for (int scanline = yStart; scanline <= yEnd; scanline++) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
@@ -126,7 +128,7 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) { xStart = 1; }
-		if (xEnd >= 799) { xEnd = 799; }
+		if (xEnd >= SCREENWIDTH - 1) { xEnd = SCREENWIDTH - 1; }
 
 		double t = ((double)scanline - p2_y) / (double)(p1_y - p2_y);
 
@@ -159,20 +161,21 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 				Vp.Normalize();
 
 				//convert frag coords to world
-				Vector3f view(x, scanline, z_frag);	//screen space
-				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
+				Vector3f view(x, scanline, z_frag);
+				view = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
 				view = Mat3f::Translate(-1, -1, 0) * view;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
-				view.x /= w_frag;
-				view.y /= w_frag;
-				view.z /= w_frag;
+				float w_inv = 1.0f / w_frag;
+				view.x *= w_inv;
+				view.y *= w_inv;
+				view.z *= w_inv;
 				view = Mat * view;
 
 				//attentuation
 				Vector3f to_light = pl.lightpos - view;
 				double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
 				double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
-				to_light.Normalize();
+				to_light.Normalize();	//normalize
 
 				//ambient
 				double amb_k = pl.amb_constant;
@@ -205,16 +208,17 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 			}
 		}
 	}
+
 }
 
-void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p1_y, double p4_z, double p4_w, double p3_x, double p3_y, double p3_z, double p3_w, std::vector<double>& ZBuffer, Mat3f & Mat, Vector3f & camerapos, Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, PointLightSetup & pl, Uint32 color)
+void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p1_y, double p4_z, double p4_w, double p3_x, double p3_y, double p3_z, double p3_w, std::vector<double>& ZBuffer, Mat3f& Mat, Vector3f & camerapos, Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, PointLightSetup & pl, Uint32 color)
 {
 
 	//by default:
-	//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
-	//p4_x , p2_y = end right flat top triangle 
-	//p3_x , p3_y = end of flat top triangle 
-	//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
+		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
+		//p4_x , p2_y = end right flat top triangle 
+		//p3_x , p3_y = end of flat top triangle 
+		//p1_y = for top of overall triangle - used for goroud interpolation of colour intensity 
 	if (p2_x > p4_x)
 	{
 		std::swap(p2_x, p4_x);
@@ -260,7 +264,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
 
-	if (yStart >= 599) { yStart = 599; }
+	if (yStart >= SCREENHEIGHT - 1) { yStart = SCREENHEIGHT - 1; }
 	if (yEnd <= 1) { yEnd = 1; }
 
 	for (int scanline = yStart; scanline > yEnd; scanline--) {
@@ -277,7 +281,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 		int xEnd = (int)px2;
 
 		if (xStart <= 1) { xStart = 1; }
-		if (xEnd >= SCREENWIDTH - 1) { xEnd = SCREENWIDTH - 1; }
+		if (xEnd >= SCREENWIDTH- 1) { xEnd = SCREENWIDTH - 1; }
 
 		double t = ((double)scanline - p2_y) / (double)(p3_y - p2_y);
 
@@ -306,18 +310,17 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				{
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
-
 				Vp.Normalize();
 
 				//screen coord -> viewspace coord
 				Vector3f view(x, scanline, z_frag);
-				view = Mat3f::Scale(1 / (0.5 * SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
+				view = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
 				view = Mat3f::Translate(-1, -1, 0) * view;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
-
-				view.x /= w_frag;
-				view.y /= w_frag;
-				view.z /= w_frag;
+				float w_inv = 1.0f / w_frag;
+				view.x *= w_inv;
+				view.y *= w_inv;
+				view.z *= w_inv;
 
 				view = Mat * view;
 

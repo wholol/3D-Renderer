@@ -59,7 +59,7 @@ private:
 	{
 		for (int i = 0; i < 3; ++i) {
 			tri.points[i] = ProjMat * tri.points[i];
-			tri.points[i] = Mat3f::Normalize(tri.points[i], ProjMat);
+			tri.points[i] = Mat3f::Normalize(tri.points[i], ProjMat);	//pespective divide
 			tri.w[i] = 1.0 / (ProjMat.w);				//store the w value of the projection matrix
 			tri.ww = ProjMat.w;
 
@@ -356,7 +356,6 @@ private:
 		if (light->light_type == Light_Type::DirLight)
 		{
 			DirectionalLightSetup& dl = dynamic_cast<DirectionalLightSetup&>(*light);
-
 			if (dl.diffuse_type == Diffuse_Type::Gouraud_Shading || dl.diffuse_type == Diffuse_Type::Flat_Shading) {
 				for (auto& t : rastertriangles) {
 					for (int i = 0; i < 3; ++i)		//for each vertex

@@ -1,5 +1,5 @@
 #pragma once
 
 //define screen params
-#define SCREENHEIGHT 600
-#define SCREENWIDTH 800
+#define SCREENHEIGHT 900
+#define SCREENWIDTH 1600

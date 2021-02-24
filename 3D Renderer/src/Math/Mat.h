@@ -102,31 +102,32 @@ public:
 
 	static Mat3<T> Projection(T Near, T Far, T AspectRatio, T FOV) {			//projectio matrix
 		Mat3<T> Projection;
-		
-		//T FovRad = 1.0f / tanf(FOV * 0.5f / 180.0f * 3.14159f);
-		//Projection.cells[0][0] = AspectRatio * FovRad;
-		//Projection.cells[1][1] = FovRad;
-		//Projection.cells[2][2] = Far / (Far - Near);
-		//Projection.cells[2][3] = (-Far * Near) / (Far - Near);
-		//Projection.cells[3][2] = 1.0f;
-		//Projection.cells[3][3] = 0.0f;
-
-
 		float Deg2Rad = 3.14159f / 180.0f;
-		T t = tanf(FOV * 0.5 * Deg2Rad) * Near;
-		T b = -t;
-		T r = tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
-		T l = -tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
 		
-		Projection.cells[0][0] = 2 * Near / (r - l);
-		Projection.cells[0][2] = ( r + l )/ (r - l);
+		T FovRad = 1.0f / tanf((FOV * 0.5f) * Deg2Rad);
+		Projection.cells[0][0] = (1.0/AspectRatio) * FovRad;
+		Projection.cells[1][1] = FovRad;
+		Projection.cells[2][2] = Far / (Far - Near);
+		Projection.cells[2][3] = (-Far * Near) / (Far - Near);
+		Projection.cells[3][2] = 1.0f;
+		Projection.cells[3][3] = 0.0f;
+
+
 		
-		Projection.cells[1][1] = ( 2 * Near )/ (t - b);
-		Projection.cells[1][2] = (t + b) / (t - b);
-		
-		Projection.cells[2][2] = -(Far + Near) / (Far - Near);
-		Projection.cells[2][3] = (2 * Far * Near) / (Far - Near);
-		Projection.cells[3][2] = -1.0f;
+		//T t = tanf(FOV * 0.5 * Deg2Rad) * Near;
+		//T b = -t;
+		//T r = tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
+		//T l = -tanf(FOV * 0.5 * Deg2Rad) * Near * AspectRatio;
+		//
+		//Projection.cells[0][0] = 2 * Near / (r - l);
+		//Projection.cells[0][2] = ( r + l )/ (r - l);
+		//
+		//Projection.cells[1][1] = ( 2 * Near )/ (t - b);
+		//Projection.cells[1][2] = (t + b) / (t - b);
+		//
+		//Projection.cells[2][2] = -(Far + Near) / (Far - Near);
+		//Projection.cells[2][3] = (2 * Far * Near) / (Far - Near);
+		//Projection.cells[3][2] = -1.0f;
 		
 
 

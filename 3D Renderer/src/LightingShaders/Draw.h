@@ -104,19 +104,34 @@ public:
 
 	static void drawline(SDL_Surface* surface, double x0, double y0, double x1, double y1, Uint32 color = 0xFFFFFF)
 	{
-
+		if (x0 < 0)
+		{
+			return;
+		}
+		if (x0 > SCREENWIDTH)
+		{
+			return;
+		}
+		if (y0 < 0)
+		{
+			return;
+		}
+		if (y0 > SCREENHEIGHT)
+		{
+			return;
+		}
 		
 		for (double t = 0; t <= 1.0; t += .01) {
 			double x = x0 + (x1 - x0)*t;
 			double y = y0 + (y1 - y0)*t;
 
-			if (x <= 0)	{}
+			if (x < 0)	{}
 		
-			else if (x >= SCREENWIDTH - 1) {}
+			else if (x > SCREENWIDTH) {}
 			
-			else if (y <= 0)	{}
+			else if (y < 0)	{}
 
-			else if (y >= SCREENHEIGHT - 1) {}
+			else if (y > SCREENHEIGHT) {}
 			
 			else {
 				putpixel(surface, x, y, color);

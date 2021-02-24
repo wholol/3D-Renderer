@@ -9,6 +9,11 @@ void LoadModel::loadFromFile(const std::string& objfile)
 	std::string warn;
 	std::string err;
 
+	//if user changes models from UI, make sure the buffers are cleared.
+	vertexbuffer.clear();
+	vertexnormbuffer.clear();
+	indexbuffer.clear();
+
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (path + objfile).c_str());
 
 	if (!warn.empty()) {
