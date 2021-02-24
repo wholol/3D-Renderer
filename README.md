@@ -6,12 +6,12 @@ TBD: texture mapping, probably abstract UI and Camera
 
 <img src="3D Renderer/images/application.png">
 
-## Dependencies
+## Dependencies (all included in this repo)
 <ul>
-  <li><a href="https://github.com/Tyyppi77/imgui_sdl">imgui_sdl</a> (included in this repo)</li>  
-  <li><a href="https://github.com/ocornut/imgui">imgui</a> (included in this repo)</li>  
-  <li><a href="https://github.com/tinyobjloader/tinyobjloader">tinyobjloader</a> (included in this repo)</li>  
-  <li><a href="https://www.libsdl.org/">SDL</a> (NOT included in this repo, simply download SDL2.0 and put it in desktop to use this project.)</li>  
+  <li><a href="https://github.com/Tyyppi77/imgui_sdl">imgui_sdl</a></li>  
+  <li><a href="https://github.com/ocornut/imgui">imgui</a></li>  
+  <li><a href="https://github.com/tinyobjloader/tinyobjloader">tinyobjloader</a></li>  
+  <li><a href="https://www.libsdl.org/">SDL</a></li>  
 </ul>
 
 
