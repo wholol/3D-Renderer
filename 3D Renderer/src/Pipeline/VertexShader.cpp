@@ -45,7 +45,7 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 		vertexnormbuffer[c] += line2.getCrossProduct(line1);
 	}
 
-	for (int i = 0; i < indexbuffer.size(); i += 3)
+	for (int i = 0u; i < indexbuffer.size(); i += 3)
 	{
 		int a = indexbuffer[i];
 		int b = indexbuffer[i + 1];

@@ -84,20 +84,19 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\imgui;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -119,16 +118,15 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\Desktop\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\imgui;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +134,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -161,16 +159,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_demo.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_sdl.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_tables.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\LightingShaders\FlatShading_Frag.cpp" />
     <ClCompile Include="src\Pipeline\FragmentShader.cpp" />
     <ClCompile Include="src\LightingShaders\Gouraud_Frag.cpp" />
-    <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\LightingShaders\PhongFlat_Frag.cpp" />
     <ClCompile Include="src\LightingShaders\PhongPoint_Frag.cpp" />
+    <ClCompile Include="src\Pipeline\LoadModel.cpp" />
     <ClCompile Include="src\Pipeline\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dependencies\imgui\imconfig.h" />
+    <ClInclude Include="dependencies\imgui\imgui.h" />
+    <ClInclude Include="dependencies\imgui\imgui_internal.h" />
+    <ClInclude Include="dependencies\imgui\imgui_sdl.h" />
+    <ClInclude Include="dependencies\imgui\imstb_rectpack.h" />
+    <ClInclude Include="dependencies\imgui\imstb_textedit.h" />
+    <ClInclude Include="dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Light\Diffuse_type.h" />
     <ClInclude Include="src\LightingShaders\Draw.h" />
@@ -206,7 +218,7 @@
     <ClInclude Include="src\Light\LightSetup.h" />
     <ClInclude Include="src\Core\ScreenSize.h" />
     <ClInclude Include="src\Profiler\Timer.h" />
-    <ClInclude Include="src\Pipeline\tiny_obj_loader.h" />
+    <ClInclude Include="dependencies\tiny_obj_loader.h" />
     <ClInclude Include="src\Math\Vector2.h" />
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Pipeline\VertexShader.h" />

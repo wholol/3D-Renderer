@@ -56,8 +56,8 @@ public:
 		Mat3<T> matRotX;
 		matRotX.cells[0][0] = 1;
 		matRotX.cells[1][1] = cosf(theta);
-		matRotX.cells[2][1] = sinf(theta);
 		matRotX.cells[1][2] = -sinf(theta);
+		matRotX.cells[2][1] = sinf(theta);
 		matRotX.cells[2][2] = cosf(theta);
 		matRotX.cells[3][3] = 1;
 		return matRotX;
@@ -124,14 +124,11 @@ public:
 		Projection.cells[1][1] = ( 2 * Near )/ (t - b);
 		Projection.cells[1][2] = (t + b) / (t - b);
 		
-		Projection.cells[2][2] = - (Far + Near) / (Far - Near);
+		Projection.cells[2][2] = -(Far + Near) / (Far - Near);
 		Projection.cells[2][3] = (2 * Far * Near) / (Far - Near);
 		Projection.cells[3][2] = -1.0f;
 		
-		Projection.cells[2][2] = Far / (Far - Near);
-		Projection.cells[2][3] = (-Far * Near) / (Far - Near);
-		Projection.cells[3][2] = 1.0f;
-		Projection.cells[3][3] = 0.0f;
+
 
 		return Projection;
 	}
