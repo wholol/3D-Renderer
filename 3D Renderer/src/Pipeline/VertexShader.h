@@ -94,10 +94,10 @@ private:
 		float d1 = plane_normal.getDotProduct(lineStart - plane);
 		float d2 = plane_normal.getDotProduct(lineEnd - plane);
 		float t = d1 / (d1 - d2);
-		Vector3f I = lineStart + (lineEnd - lineStart) * t;
+		Vector3f point = lineStart + (lineEnd - lineStart) * t;
 
 
-		return I;
+		return point;
 	}
 
 
@@ -107,7 +107,19 @@ private:
 
 		auto dist = [&](Vector3f& p)
 		{
+			//returns negative if the point is otuside of the plane as it is not porjecting onto the normal, and vice versa.
 			return (p - plane).getDotProduct(plane_normal);
+		};
+
+		auto lerp_vertexnormal = [&](Vector3f& point_out, Vector3f& point_in, Vector3f& v_normal_out , Vector3f& v_normal_in)
+		{
+			//assume line origin i the point outisde the clip space
+			//https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+			float d1 = plane_normal.getDotProduct(point_in - plane);
+			float d2 = plane_normal.getDotProduct(point_out - plane);
+			float t = d1 / (d1 - d2);
+			Vector3f v_normal_lerp = v_normal_in + (v_normal_out - v_normal_in) * t;	//lerp the vertex normal
+			return v_normal_lerp.Normalize();
 		};
 
 		//compute distance of each point
@@ -148,8 +160,8 @@ private:
 				new1.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[0], tri.viewpoints[2]);
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
-				new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
-				new1.v_normal[2] = tri.s_normal;
+				new1.v_normal[1] = lerp_vertexnormal(tri.points[1], tri.points[0], tri.v_normal[1], tri.v_normal[0]);	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new1.v_normal[2] = lerp_vertexnormal(tri.points[2], tri.points[0], tri.v_normal[2], tri.v_normal[0]);
 			}
 
 			else if (p1_dist >= 0)	//if point[1] inside
@@ -161,9 +173,9 @@ private:
 				new1.viewpoints[1] = tri.viewpoints[1];
 				new1.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[2]);
 				new1.s_normal = tri.s_normal;
-				new1.v_normal[0] = tri.s_normal;
+				new1.v_normal[0] = lerp_vertexnormal(tri.points[0], tri.points[1], tri.v_normal[0], tri.v_normal[1]);
 				new1.v_normal[1] = tri.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
-				new1.v_normal[2] = tri.s_normal;
+				new1.v_normal[2] = lerp_vertexnormal(tri.points[2], tri.points[1], tri.v_normal[2], tri.v_normal[1]);
 			}
 
 			else if (p2_dist >= 0)	//if point[2] is inside
@@ -175,8 +187,8 @@ private:
 				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[1]);
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
-				new1.v_normal[0] = tri.s_normal;
-				new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new1.v_normal[0] = lerp_vertexnormal(tri.points[0], tri.points[2], tri.v_normal[0], tri.v_normal[2]);
+				new1.v_normal[1] = lerp_vertexnormal(tri.points[1], tri.points[2], tri.v_normal[1], tri.v_normal[2]);	//since the point is at the edge of the sreen, v.normal = s.normal.
 				new1.v_normal[2] = tri.v_normal[2];
 			}
 			return 1;
@@ -196,7 +208,7 @@ private:
 				new1.viewpoints[2] = tri.viewpoints[1];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
-				new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new1.v_normal[1] = lerp_vertexnormal(tri.points[2], tri.points[0], tri.v_normal[2], tri.v_normal[0]);	//since the point is at the edge of the sreen, v.normal = s.normal.
 				new1.v_normal[2] = tri.v_normal[1];
 
 				//conects with both new points
@@ -208,8 +220,8 @@ private:
 				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[2]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[1];
-				new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
-				new2.v_normal[2] = tri.s_normal;
+				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new2.v_normal[2] = lerp_vertexnormal(tri.points[2], tri.points[1], tri.v_normal[2], tri.v_normal[1]);
 			}
 
 			else if (p1_dist >= 0 && p2_dist >= 0)	//if point 1 and 2 is inside
@@ -223,7 +235,7 @@ private:
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[1];
-				new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new1.v_normal[1] = lerp_vertexnormal(tri.points[0], tri.points[1], tri.v_normal[0], tri.v_normal[1]);	//since the point is at the edge of the sreen, v.normal = s.normal.
 				new1.v_normal[2] = tri.v_normal[2];
 
 				//conects with both new points
@@ -235,8 +247,8 @@ private:
 				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[0]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[2];
-				new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
-				new2.v_normal[2] = tri.s_normal;
+				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new2.v_normal[2] = lerp_vertexnormal(tri.points[0], tri.points[2], tri.v_normal[0], tri.v_normal[2]);;
 			}
 
 			else if (p0_dist >= 0 && p2_dist >= 0)	//if point 0 and 2 is inside
@@ -250,7 +262,7 @@ private:
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
-				new1.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new1.v_normal[1] = lerp_vertexnormal(tri.points[1], tri.points[0], tri.v_normal[1], tri.v_normal[0]);	//since the point is at the edge of the sreen, v.normal = s.normal.
 				new1.v_normal[2] = tri.v_normal[2];
 
 				//conects with both new points
@@ -262,8 +274,8 @@ private:
 				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[1]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[2];
-				new2.v_normal[1] = tri.s_normal;	//since the point is at the edge of the sreen, v.normal = s.normal.
-				new2.v_normal[2] = tri.s_normal;
+				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
+				new2.v_normal[2] = lerp_vertexnormal(tri.points[1], tri.points[2], tri.v_normal[1], tri.v_normal[2]);;
 			}
 
 			return 2;
@@ -315,7 +327,7 @@ private:
 						else
 						{
 							//flat shading
-							diff_k = std::max(0.0f, to_light.getDotProduct(t.s_normal.getNormalized()));
+							diff_k = std::max(0.0f, to_light.getDotProduct(t.s_normal));
 						}
 
 						//specular
@@ -324,7 +336,7 @@ private:
 						Vector3f r = w - to_light;
 
 						//( R . V ) ^ shininess
-						double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
+						double spec_k = std::max(0.0f, std::powf((ViewVec.Normalize().getDotProduct(r.Normalize())), pl.spec_exponent));
 
 						if (spec_k > 1.0)
 						{
@@ -376,7 +388,7 @@ private:
 
 						else {
 							//flat shading
-							diff_k = std::max(0.0f, dl.lightdir.getNormalized().getDotProduct(t.s_normal.getNormalized()));
+							diff_k = std::max(0.0f, dl.lightdir.getNormalized().getDotProduct(t.s_normal));
 						}
 
 						double f = amb_k + diff_k;

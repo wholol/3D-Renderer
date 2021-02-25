@@ -22,11 +22,6 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		{
 			Gouraud_Frag::filltriangle_gouraud(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z,
 				ZBuffer, t.vertex_colors[0], t.vertex_colors[1], t.vertex_colors[2]);
-
-			if (wireframe)
-			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
-			}
 		}
 	}
 
@@ -36,11 +31,6 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		for (auto& t : rastertriangles)
 		{
 			FlatShading_Frag::filltriangle_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.color);
-
-			if (wireframe)
-			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
-			}
 		}
 	}
 
@@ -51,12 +41,8 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		for (auto& t : rastertriangles)
 		{
 			PhongFlat_Frag::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
-				t.v_normal[2], dl.lightdir,dl.light_col);
+				t.v_normal[2],dl,dl.light_col);
 
-			if (wireframe)
-			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
-			}
 		}
 	}
 
@@ -74,10 +60,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 				 ZBuffer, VP_inv,
 				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, pl.light_col);
 
-			if (wireframe)
-			{
-				Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
-			}
+			
 		}
 	}
 
@@ -90,6 +73,15 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 				Draw::drawline(surface, t.points[i].x, t.points[i].y, t.norm_end[i].x, t.norm_end[i].y, SDL_MapRGB(surface->format, 255, 0, 0));
 			}
 		}
+	}
+
+	if (wireframe)
+	{
+		for (auto& t : rastertriangles)
+		{
+			Draw::drawtriangle(surface, t.points[0].x, t.points[0].y, t.points[1].x, t.points[1].y, t.points[2].x, t.points[2].y);
+		}
+		
 	}
 
 	rastertriangles.clear();

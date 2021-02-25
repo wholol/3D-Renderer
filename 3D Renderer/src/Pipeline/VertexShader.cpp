@@ -87,7 +87,8 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 			temp.norm_end[2] = temp.points[2] + temp.v_normal[2] * 0.5;
 
 			WorldtoCameraTransform(temp);
-	
+			
+			//not realyl used, bt it could be used for lighting computations
 			temp.viewpoints[0] = ViewMat * temp.points[0];
 			temp.viewpoints[1] = ViewMat * temp.points[1];
 			temp.viewpoints[2] = ViewMat * temp.points[2];

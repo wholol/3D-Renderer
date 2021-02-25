@@ -1,7 +1,7 @@
 #include "PhongFlat_Frag.h"
 #include "src/Core/ScreenSize.h"
 
-void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, Vector3f lightdir,Uint32 color)
+void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface* surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, DirectionalLightSetup& dl,Uint32 color)
 {
 	if (p2_y < p1_y) {
 		std::swap(p2_y, p1_y);
@@ -26,12 +26,12 @@ void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface * surface, double p1_x,
 
 	if (p1_y == p2_y)
 	{
-		fillflattoptriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex, lightdir,color);
+		fillflattoptriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex,dl,color);
 	}
 
 	else if (p2_y == p3_y)
 	{
-		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex, lightdir,color);
+		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex, dl,color);
 	}
 
 	else {
@@ -46,13 +46,13 @@ void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface * surface, double p1_x,
 
 		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 		//note that p2y is the middle, and it will be used for both sides).
-		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, x4, p3_y, z4, ZBuffer, v1_vertex, v2_vertex, v4_vertex, lightdir, color);
-		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, p2_z, x4, p1_y, z4, p3_x, p3_y, p3_z, ZBuffer, v4_vertex, v2_vertex, v3_vertex, lightdir, color);
+		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, x4, p3_y, z4, ZBuffer, v1_vertex, v2_vertex, v4_vertex,  dl,color);
+		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, p2_z, x4, p1_y, z4, p3_x, p3_y, p3_z, ZBuffer, v4_vertex, v2_vertex, v3_vertex, dl, color);
 	}
 }
 
 void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p4_x, double p3_y, double p4_z, std::vector<double>& ZBuffer, 
-	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, Vector3f& lightdir, Uint32 color)
+	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, DirectionalLightSetup& dl, Uint32 color)
 {
 	//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -146,8 +146,8 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
 
-				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(lightdir.getNormalized()));
-				double amb_k = 0.1;
+				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(dl.lightdir.getNormalized()));
+				double amb_k = dl.amb_constant;
 				double f = diff_k + amb_k;
 
 				for (int j = 1; j < 4; ++j)
@@ -165,7 +165,7 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 }
 
 void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, double p2_x, double p2_y, double p2_z, double p4_x, double p1_y, double p4_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, 
-	Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, Vector3f lightdir, Uint32 color)
+	Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, DirectionalLightSetup& dl, Uint32 color)
 {
 	//by default:
 		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
@@ -261,8 +261,8 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 
 				//clacualte colour intensity with vp
 				//directional light
-				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(lightdir.getNormalized()));
-				double amb_k = 0.1;
+				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(dl.lightdir.getNormalized()));
+				double amb_k = dl.amb_constant;
 
 				double f = diff_k + amb_k;
 

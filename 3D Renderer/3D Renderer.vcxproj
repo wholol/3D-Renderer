@@ -90,13 +90,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\imgui;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3D Renderer\dependencies\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jeremy\source\repos\3D Renderer\3D Renderer;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\SDL2\include;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Light;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Models;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Profiler;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Pipeline;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\LightingShaders;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\src\Math;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\imgui;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\jeremy\Desktop\SDL2\lib\x86;C:\Users\jeremy\source\repos\3D Renderer\3D Renderer\dependencies\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3D Renderer\dependencies\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -187,7 +187,7 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 				Vector3f ViewVec = camerapos - view;
 				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
-				double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
+				double spec_k = std::max(0.0f, std::powf((ViewVec.Normalize().getDotProduct(r.Normalize())), pl.spec_exponent));
 
 				if (spec_k > 1.0f)
 				{
@@ -340,7 +340,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				Vector3f ViewVec = camerapos - view;
 				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
-				double spec_k = std::max(0.0f, std::powf((ViewVec.getNormalized().getDotProduct(r.getNormalized())), pl.spec_exponent));
+				double spec_k = std::max(0.0f, std::powf((ViewVec.Normalize().getDotProduct(r.Normalize())), pl.spec_exponent));
 
 				if (spec_k > 1.0)
 				{
