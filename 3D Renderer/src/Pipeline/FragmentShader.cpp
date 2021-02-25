@@ -6,7 +6,7 @@
 #include "FlatShading_Frag.h"
 #include "PhongPoint_Frag.h"
 
-void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,std::vector<triangle>& rastertriangles, Uint32 objcolor, std::shared_ptr<Light> light,Vector3f& camerapos , Mat3f& ProjMat, Mat3f& ViewMat, bool wireframe, bool draw_normals)
+void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertexnormbuffer,std::vector<triangle>& rastertriangles, Uint32 objectcolor, std::shared_ptr<Light> light,Vector3f& camerapos , Mat3f& ProjMat, Mat3f& ViewMat, bool wireframe, bool draw_normals)
 {
 	ZBuffer.reserve(SCREENHEIGHT * SCREENWIDTH);
 
@@ -41,7 +41,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 		for (auto& t : rastertriangles)
 		{
 			PhongFlat_Frag::filltriangle_phong_flat(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.points[1].x, t.points[1].y, t.points[1].z, t.points[2].x, t.points[2].y, t.points[2].z, ZBuffer, t.v_normal[0], t.v_normal[1],
-				t.v_normal[2],dl,dl.light_col);
+				t.v_normal[2],dl,objectcolor);
 
 		}
 	}
@@ -58,9 +58,7 @@ void FragmentShader::Process(SDL_Surface* surface, std::vector<Vector3f>& vertex
 			PhongPoint_Frag::filltriangle_phong_point(surface, t.points[0].x, t.points[0].y, t.points[0].z, t.w[0], t.points[1].x, t.points[1].y, t.points[1].z, t.w[1], t.points[2].x, t.points[2].y, t.points[2].z,
 				t.w[2], camerapos,
 				 ZBuffer, VP_inv,
-				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, pl.light_col);
-
-			
+				t.v_normal[0], t.v_normal[1], t.v_normal[2], pl, objectcolor);	
 		}
 	}
 

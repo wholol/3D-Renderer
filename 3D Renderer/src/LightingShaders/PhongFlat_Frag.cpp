@@ -1,7 +1,7 @@
 #include "PhongFlat_Frag.h"
 #include "src/Core/ScreenSize.h"
 
-void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface* surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, DirectionalLightSetup& dl,Uint32 color)
+void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface* surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, DirectionalLightSetup& dl,Uint32 objectcolor)
 {
 	if (p2_y < p1_y) {
 		std::swap(p2_y, p1_y);
@@ -26,12 +26,12 @@ void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface* surface, double p1_x, 
 
 	if (p1_y == p2_y)
 	{
-		fillflattoptriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex,dl,color);
+		fillflattoptriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex,dl,objectcolor);
 	}
 
 	else if (p2_y == p3_y)
 	{
-		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex, dl,color);
+		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, v1_vertex, v2_vertex, v3_vertex, dl,objectcolor);
 	}
 
 	else {
@@ -43,16 +43,15 @@ void PhongFlat_Frag::filltriangle_phong_flat(SDL_Surface* surface, double p1_x, 
 		Vector3f v4_vertex = v3_vertex * (1.0 - t) + v1_vertex * t;
 		v4_vertex.Normalize();
 
-
 		//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 		//note that p2y is the middle, and it will be used for both sides).
-		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, x4, p3_y, z4, ZBuffer, v1_vertex, v2_vertex, v4_vertex,  dl,color);
-		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, p2_z, x4, p1_y, z4, p3_x, p3_y, p3_z, ZBuffer, v4_vertex, v2_vertex, v3_vertex, dl, color);
+		fillflatbottomtriangle_phong_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, x4, p3_y, z4, ZBuffer, v1_vertex, v2_vertex, v4_vertex,  dl,objectcolor);
+		fillflattoptriangle_phong_flat(surface, p2_x, p2_y, p2_z, x4, p1_y, z4, p3_x, p3_y, p3_z, ZBuffer, v4_vertex, v2_vertex, v3_vertex, dl, objectcolor);
 	}
 }
 
 void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p4_x, double p3_y, double p4_z, std::vector<double>& ZBuffer, 
-	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, DirectionalLightSetup& dl, Uint32 color)
+	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, DirectionalLightSetup& dl, Uint32 objectcolor)
 {
 	//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -90,11 +89,18 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 
 	Uint8 light_src_rgba[4], final_light_rgba[4];
 	Uint32 final_light;
-	light_src_rgba[0] = (color & 0xFF000000) >> 24;
-	light_src_rgba[1] = (color & 0x00FF0000) >> 16;
-	light_src_rgba[2] = (color & 0x0000FF00) >> 8;
-	light_src_rgba[3] = (color & 0x000000FF);
+	light_src_rgba[0] = (dl.light_col & 0xFF000000) >> 24;
+	light_src_rgba[1] = (dl.light_col & 0x00FF0000) >> 16;
+	light_src_rgba[2] = (dl.light_col & 0x0000FF00) >> 8;
+	light_src_rgba[3] = (dl.light_col & 0x000000FF);
 	final_light_rgba[0] = light_src_rgba[0];
+
+	Uint8 object_src_rgba[4];
+	object_src_rgba[0] = (objectcolor & 0xFF000000) >> 24;
+	object_src_rgba[1] = (objectcolor & 0x00FF0000) >> 16;
+	object_src_rgba[2] = (objectcolor & 0x0000FF00) >> 8;
+	object_src_rgba[3] = (objectcolor & 0x000000FF);
+
 
 	int yStart = (int)p1_y;
 	int yEnd = (int)p2_y;
@@ -146,13 +152,15 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
 
-				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(dl.lightdir.getNormalized()));
+				Vp.Normalize();
+
+				double diff_k = std::max(0.0f, Vp.getDotProduct(dl.lightdir.getNormalized()));
 				double amb_k = dl.amb_constant;
 				double f = diff_k + amb_k;
 
 				for (int j = 1; j < 4; ++j)
 				{
-					int c = light_src_rgba[j] * f;
+					int c = (light_src_rgba[j] * object_src_rgba[j] * f) / 255.0;
 					if (c > 255) c = 255;
 					final_light_rgba[j] = c;
 				}
@@ -165,7 +173,7 @@ void PhongFlat_Frag::fillflatbottomtriangle_phong_flat(SDL_Surface * surface, do
 }
 
 void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, double p2_x, double p2_y, double p2_z, double p4_x, double p1_y, double p4_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, 
-	Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, DirectionalLightSetup& dl, Uint32 color)
+	Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, DirectionalLightSetup& dl, Uint32 objectcolor)
 {
 	//by default:
 		//p2_x , p2_y = top left of flat top triangle (middle vertex coordinate)
@@ -199,18 +207,21 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 		slope_2_z = dz2 / dy;
 	}
 
-	if (p2_y <= 0) { p2_y = 0; }
-	if (p3_y >= SCREENHEIGHT - 1) { p3_y = SCREENHEIGHT - 1; }
-
 	Vector3f Va, Vb, Vp;
 
 	Uint8 light_src_rgba[4], final_light_rgba[4];
 	Uint32 final_light;
-	light_src_rgba[0] = (color & 0xFF000000) >> 24;
-	light_src_rgba[1] = (color & 0x00FF0000) >> 16;
-	light_src_rgba[2] = (color & 0x0000FF00) >> 8;
-	light_src_rgba[3] = (color & 0x000000FF);
+	light_src_rgba[0] = (dl.light_col & 0xFF000000) >> 24;
+	light_src_rgba[1] = (dl.light_col & 0x00FF0000) >> 16;
+	light_src_rgba[2] = (dl.light_col & 0x0000FF00) >> 8;
+	light_src_rgba[3] = (dl.light_col & 0x000000FF);
 	final_light_rgba[0] = light_src_rgba[0];
+
+	Uint8 object_src_rgba[4];
+	object_src_rgba[0] = (objectcolor & 0xFF000000) >> 24;
+	object_src_rgba[1] = (objectcolor & 0x00FF0000) >> 16;
+	object_src_rgba[2] = (objectcolor & 0x0000FF00) >> 8;
+	object_src_rgba[3] = (objectcolor & 0x000000FF);
 
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
@@ -258,17 +269,17 @@ void PhongFlat_Frag::fillflattoptriangle_phong_flat(SDL_Surface * surface, doubl
 				{
 					Vp = Va * t_x + Vb * (1.0 - t_x);
 				}
-
+				Vp.Normalize();
 				//clacualte colour intensity with vp
 				//directional light
-				double diff_k = std::max(0.0f, Vp.Normalize().getDotProduct(dl.lightdir.getNormalized()));
+				double diff_k = std::max(0.0f, Vp.getDotProduct(dl.lightdir.getNormalized()));
 				double amb_k = dl.amb_constant;
 
 				double f = diff_k + amb_k;
 
 				for (int j = 1; j < 4; ++j)
 				{
-					int c = (int)(light_src_rgba[j] * f);
+					int c = (light_src_rgba[j] * object_src_rgba[j] * f) / 255.0;
 					if (c > 255) c = 255;
 					final_light_rgba[j] = c;
 				}

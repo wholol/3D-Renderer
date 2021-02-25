@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;$(SolutionDir)\3D Renderer\src\GUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\3D Renderer;$(SolutionDir)\3D Renderer\dependencies\SDL2\include;$(SolutionDir)\3D Renderer\src\Light;$(SolutionDir)\3D Renderer\src\Models;$(SolutionDir)\3D Renderer\src\Profiler;$(SolutionDir)\3D Renderer\src\Pipeline;$(SolutionDir)\3D Renderer\src\LightingShaders;$(SolutionDir)\3D Renderer\src\Math;$(SolutionDir)\3D Renderer\dependencies\imgui;$(SolutionDir)\3D Renderer\dependencies\tinyobjloader;$(SolutionDir)\3D Renderer\src\GUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -167,6 +167,7 @@
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
+    <ClCompile Include="src\GUI\GUI.cpp" />
     <ClCompile Include="src\LightingShaders\FlatShading_Frag.cpp" />
     <ClCompile Include="src\Pipeline\FragmentShader.cpp" />
     <ClCompile Include="src\LightingShaders\Gouraud_Frag.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="dependencies\imgui\imstb_textedit.h" />
     <ClInclude Include="dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Light\Diffuse_type.h" />
     <ClInclude Include="src\LightingShaders\Draw.h" />
     <ClInclude Include="src\LightingShaders\FlatShading_Frag.h" />

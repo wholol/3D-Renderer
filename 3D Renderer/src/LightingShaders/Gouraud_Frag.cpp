@@ -40,7 +40,7 @@ void Gouraud_Frag::filltriangle_gouraud(SDL_Surface * surface, double p1_x, doub
 		double t = (double)(p3_y - p2_y) / (double)(p3_y - p1_y);
 
 		double z4 = p1_z + (double)((double)(p2_y - p1_y) / (double)(p3_y - p1_y)) * (double)(p3_z - p1_z);
-		//lerp color
+		//lerp lightcolor
 		Uint8 p4_color_rgba[4];
 		Uint32 p4_color;
 		p4_color_rgba[0] = (((p3_color & 0x00FF0000) >> 24) * (1 - t)) + (((p1_color & 0x00FF0000) >> 24) * t);
@@ -93,11 +93,12 @@ void Gouraud_Frag::fillflatbottomtriangle_gouraud(SDL_Surface * surface, double 
 	}
 
 	double Ip[4], Ib[4], Ia[4];
-	if (p1_y <= 1) p1_y = 1;
-	if (p2_y >= SCREENHEIGHT - 1) p2_y = SCREENHEIGHT - 1;
+	
+	int yStart = p1_y;		
+	int yEnd = p2_y;
 
-	int yStart = (int)p1_y;
-	int yEnd = (int)p2_y;
+	if (yStart <= 1) { yStart = 1; }
+	if (yEnd >= SCREENHEIGHT - 1) { yEnd = SCREENHEIGHT - 1; }
 
 	for (int scanline = yStart; scanline <= yEnd; scanline++) {
 
@@ -197,11 +198,13 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 	}
 
 	double Ip[4], Ib[4], Ia[4];
-	if (p2_y <= 1) p2_y = 1;
-	if (p3_y >= SCREENHEIGHT - 1) p3_y = SCREENHEIGHT - 1;
-
+	
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
+
+	if (yStart >= SCREENHEIGHT - 1) { yStart = SCREENHEIGHT - 1; }
+	if (yEnd <= 1) { yEnd = 1; }
+
 
 	for (int scanline = yStart; scanline > yEnd; scanline--) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
@@ -254,10 +257,7 @@ void Gouraud_Frag::fillflattoptriangle_gouraud(SDL_Surface * surface, double p2_
 						Ip[i] = (Ia[i] * t_x) + (Ib[i] * (1.0 - t_x));
 					}
 				}
-
 				Draw::putpixel(surface, x, scanline, ((Uint8)Ip[0] << 24) + ((Uint8)Ip[1] << 16) + ((Uint8)Ip[2] << 8) + (Uint8)Ip[3]);
-
-				
 			}
 		}
 	}

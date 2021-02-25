@@ -71,25 +71,25 @@ public:
 			if (u1 > u2) {
 				std::swap(u1, u2);
 			}
-			//fillbottomtriangle(surface, u0, v0, u1, v1, u2, v2, ZBuffer, color);
+			//fillbottomtriangle(surface, u0, v0, u1, v1, u2, v2, ZBuffer, lightcolor);
 		}
 
 		else if (v0 == v1) {
 			if (u0 > u1) {
 				std::swap(u0, u1);
 			}
-			//filltoptriangle(surface, u0, v0, u1, v1, u2, v2, ZBuffer, color);
+			//filltoptriangle(surface, u0, v0, u1, v1, u2, v2, ZBuffer, lightcolor);
 		}
 
 		else {
 			int u4 = u0 + (float)((float)(v1 - v0) / (float)(v2 - v0)) * (u2 - u0);
 			if (u4 > u1) {
-				//fillbottomtriangle(surface, u0, v0, u1, v1, u4, v1,  ZBuffer, color);
-				//filltoptriangle(surface, u1, v1, u4, v1, u2, v2, ZBuffer, color);
+				//fillbottomtriangle(surface, u0, v0, u1, v1, u4, v1,  ZBuffer, lightcolor);
+				//filltoptriangle(surface, u1, v1, u4, v1, u2, v2, ZBuffer, lightcolor);
 			}
 			else {
-				//fillbottomtriangle(surface, u0, v0, u4, v1, u1, v1, ZBuffer, color);
-				//filltoptriangle(surface, u4, v1, u1, v1, u2, v2, ZBuffer, color);
+				//fillbottomtriangle(surface, u0, v0, u4, v1, u1, v1, ZBuffer, lightcolor);
+				//filltoptriangle(surface, u4, v1, u1, v1, u2, v2, ZBuffer, lightcolor);
 			}
 
 		}

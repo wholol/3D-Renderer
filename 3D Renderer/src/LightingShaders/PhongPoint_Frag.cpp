@@ -1,7 +1,14 @@
 #include "PhongPoint_Frag.h"
 
-void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface* surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p3_x, double p3_y, double p3_z, double p3_w, Vector3f& camerapos,
-	std::vector<double>& ZBuffer, Mat3f& Mat, Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, PointLightSetup& pl, Uint32 color)
+void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface* surface, 
+	double p1_x, double p1_y, double p1_z, double p1_w, 
+	double p2_x, double p2_y, double p2_z, double p2_w, 
+	double p3_x, double p3_y, double p3_z, double p3_w, 
+	Vector3f& camerapos,
+	std::vector<double>& ZBuffer, Mat3f& Mat, 
+	Vector3f v1_vertex, Vector3f v2_vertex, Vector3f v3_vertex, 
+	PointLightSetup& pl, Uint32 objectcolor)
+
 	{
 		if (p2_y < p1_y) {
 			std::swap(p2_y, p1_y);
@@ -29,12 +36,12 @@ void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface* surface, double p1_x
 
 		if (p1_y == p2_y)
 		{
-			fillflattoptriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
+			fillflattoptriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, objectcolor);
 		}
 
 		else if (p2_y == p3_y)
 		{
-			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, color);
+			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v3_vertex, pl, objectcolor);
 		}
 
 		else {
@@ -49,13 +56,18 @@ void PhongPoint_Frag::filltriangle_phong_point(SDL_Surface* surface, double p1_x
 
 			//right side major by default perform a swap between x4 and p2_x in the functions if left side.
 			//note that p2y is the middle, and it will be used for both sides).
-			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, x4, p3_y, z4, w4, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v4_vertex, pl, color);
-			fillflattoptriangle_phong_point(surface, p2_x, p2_y, p2_z, p2_w, x4, p1_y, z4, w4, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v4_vertex, v2_vertex, v3_vertex, pl, color);
+			fillflatbottomtriangle_phong_point(surface, p1_x, p1_y, p1_z, p1_w, p2_x, p2_y, p2_z, p2_w, x4, p3_y, z4, w4, ZBuffer, Mat, camerapos, v1_vertex, v2_vertex, v4_vertex, pl, objectcolor);
+			fillflattoptriangle_phong_point(surface, p2_x, p2_y, p2_z, p2_w, x4, p1_y, z4, w4, p3_x, p3_y, p3_z, p3_w, ZBuffer, Mat, camerapos, v4_vertex, v2_vertex, v3_vertex, pl, objectcolor);
 		}
 }
 
-void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p1_w, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p3_y, double p4_z, double p4_w, std::vector<double>& ZBuffer, Mat3f & Mat, Vector3f & camerapos, 
-	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, PointLightSetup & pl, Uint32 color)
+void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
+	double p1_x, double p1_y, double p1_z, double p1_w, 
+	double p2_x, double p2_y, double p2_z, double p2_w, 
+	double p4_x, double p3_y, double p4_z, double p4_w, 
+	std::vector<double>& ZBuffer, Mat3f & Mat, Vector3f & camerapos, 
+	Vector3f p1_vertex, Vector3f p2_vertex, Vector3f p4_vertex, 
+	PointLightSetup & pl, Uint32 objectcolor)
 {
 	//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -102,11 +114,18 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 
 	Uint8 light_src_rgba[4], final_light_rgba[4];
 	Uint32 final_light;
-	light_src_rgba[0] = (color & 0xFF000000) >> 24;
-	light_src_rgba[1] = (color & 0x00FF0000) >> 16;
-	light_src_rgba[2] = (color & 0x0000FF00) >> 8;
-	light_src_rgba[3] = (color & 0x000000FF);
+	light_src_rgba[0] = (pl.light_col & 0xFF000000) >> 24;
+	light_src_rgba[1] = (pl.light_col & 0x00FF0000) >> 16;
+	light_src_rgba[2] = (pl.light_col & 0x0000FF00) >> 8;
+	light_src_rgba[3] = (pl.light_col & 0x000000FF);
 	final_light_rgba[0] = light_src_rgba[0];
+
+	Uint8 object_col_rgba[4];
+	object_col_rgba[0] = (objectcolor & 0xFF000000) >> 24;
+	object_col_rgba[1] = (objectcolor & 0x00FF0000) >> 16;
+	object_col_rgba[2] = (objectcolor & 0x0000FF00) >> 8;
+	object_col_rgba[3] = (objectcolor & 0x000000FF);
+
 
 	int yStart = p1_y;
 	int yEnd = p2_y;
@@ -161,18 +180,18 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 				Vp.Normalize();
 
 				//convert frag coords to world
-				Vector3f view(x, scanline, z_frag);
-				view = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
-				view = Mat3f::Translate(-1, -1, 0) * view;
+				Vector3f fragpos_worldspace(x, scanline, z_frag);
+				fragpos_worldspace = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * fragpos_worldspace;
+				fragpos_worldspace = Mat3f::Translate(-1, -1, 0) * fragpos_worldspace;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
 				float w_inv = 1.0f / w_frag;
-				view.x *= w_inv;
-				view.y *= w_inv;
-				view.z *= w_inv;
-				view = Mat * view;
+				fragpos_worldspace.x *= w_inv;
+				fragpos_worldspace.y *= w_inv;
+				fragpos_worldspace.z *= w_inv;
+				fragpos_worldspace = Mat * fragpos_worldspace;
 
 				//attentuation
-				Vector3f to_light = pl.lightpos - view;
+				Vector3f to_light = pl.lightpos - fragpos_worldspace;
 				double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
 				double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
 				to_light.Normalize();	//normalize
@@ -184,7 +203,7 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 				double diff_k = std::max(0.0f, to_light.getDotProduct(Vp));
 
 				//specular
-				Vector3f ViewVec = camerapos - view;
+				Vector3f ViewVec = camerapos - fragpos_worldspace;
 				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
 				double spec_k = std::max(0.0f, std::powf((ViewVec.Normalize().getDotProduct(r.Normalize())), pl.spec_exponent));
@@ -198,7 +217,7 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 
 				for (int j = 1; j < 4; ++j)
 				{
-					int c = light_src_rgba[j] * f;
+					int c = (light_src_rgba[j] * object_col_rgba[j] * f) / 255.0;
 					if (c > 255) c = 255;
 					final_light_rgba[j] = c;
 				}
@@ -211,7 +230,13 @@ void PhongPoint_Frag::fillflatbottomtriangle_phong_point(SDL_Surface * surface, 
 
 }
 
-void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, double p2_x, double p2_y, double p2_z, double p2_w, double p4_x, double p1_y, double p4_z, double p4_w, double p3_x, double p3_y, double p3_z, double p3_w, std::vector<double>& ZBuffer, Mat3f& Mat, Vector3f & camerapos, Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, PointLightSetup & pl, Uint32 color)
+void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, 
+	double p2_x, double p2_y, double p2_z, double p2_w, 
+	double p4_x, double p1_y, double p4_z, double p4_w, 
+	double p3_x, double p3_y, double p3_z, double p3_w, 
+	std::vector<double>& ZBuffer, Mat3f& Mat, Vector3f & camerapos, 
+	Vector3f p4_vertex, Vector3f p2_vertex, Vector3f p3_vertex, 
+	PointLightSetup & pl, Uint32 objectcolor)
 {
 
 	//by default:
@@ -255,11 +280,17 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 
 	Uint8 light_src_rgba[4], final_light_rgba[4];
 	Uint32 final_light;
-	light_src_rgba[0] = (color & 0xFF000000) >> 24;
-	light_src_rgba[1] = (color & 0x00FF0000) >> 16;
-	light_src_rgba[2] = (color & 0x0000FF00) >> 8;
-	light_src_rgba[3] = (color & 0x000000FF);
+	light_src_rgba[0] = (pl.light_col & 0xFF000000) >> 24;
+	light_src_rgba[1] = (pl.light_col & 0x00FF0000) >> 16;
+	light_src_rgba[2] = (pl.light_col & 0x0000FF00) >> 8;
+	light_src_rgba[3] = (pl.light_col & 0x000000FF);
 	final_light_rgba[0] = light_src_rgba[0];
+
+	Uint8 object_col_rgba[4];
+	object_col_rgba[0] = (objectcolor & 0xFF000000) >> 24;
+	object_col_rgba[1] = (objectcolor & 0x00FF0000) >> 16;
+	object_col_rgba[2] = (objectcolor & 0x0000FF00) >> 8;
+	object_col_rgba[3] = (objectcolor & 0x000000FF);
 
 	int yStart = (int)p3_y;
 	int yEnd = (int)p2_y;
@@ -313,19 +344,19 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				Vp.Normalize();
 
 				//screen coord -> viewspace coord
-				Vector3f view(x, scanline, z_frag);
-				view = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * view;
-				view = Mat3f::Translate(-1, -1, 0) * view;
+				Vector3f fragpos_worldspace(x, scanline, z_frag);
+				fragpos_worldspace = Mat3f::Scale(1 / (0.5 *SCREENWIDTH), 1 / (0.5 * SCREENHEIGHT), 1) * fragpos_worldspace;
+				fragpos_worldspace = Mat3f::Translate(-1, -1, 0) * fragpos_worldspace;
 				float w_frag = wStart * t_x + wEnd * (1.0 - t_x);
 				float w_inv = 1.0f / w_frag;
-				view.x *= w_inv;
-				view.y *= w_inv;
-				view.z *= w_inv;
+				fragpos_worldspace.x *= w_inv;
+				fragpos_worldspace.y *= w_inv;
+				fragpos_worldspace.z *= w_inv;
 
-				view = Mat * view;
+				fragpos_worldspace = Mat * fragpos_worldspace;
 
-				//gotta invert the view mat
-				Vector3f to_light = pl.lightpos - view;
+				//gotta invert the fragpos_worldspace mat
+				Vector3f to_light = pl.lightpos - fragpos_worldspace;
 				double dist = to_light.getMagnitude();	//get distance from point lgiht to vertex point
 				double attenuation = 1.0 / ((pl.a * dist * dist) + (pl.b * dist) + pl.c);	//get attenuation
 				to_light.Normalize();	//normalize
@@ -337,7 +368,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 				double diff_k = std::max(0.0f, to_light.getDotProduct(Vp));
 
 				//specular
-				Vector3f ViewVec = camerapos - view;
+				Vector3f ViewVec = camerapos - fragpos_worldspace;
 				Vector3f w = Vp * 2.0 * Vp.getDotProduct(to_light);
 				Vector3f r = w - to_light;
 				double spec_k = std::max(0.0f, std::powf((ViewVec.Normalize().getDotProduct(r.Normalize())), pl.spec_exponent));
@@ -351,7 +382,7 @@ void PhongPoint_Frag::fillflattoptriangle_phong_point(SDL_Surface * surface, dou
 
 				for (int j = 1; j < 4; ++j)
 				{
-					int c = light_src_rgba[j] * f;
+					int c = (light_src_rgba[j] * object_col_rgba[j] * f) / 255.0;
 					if (c > 255) c = 255;
 					final_light_rgba[j] = c;
 				}

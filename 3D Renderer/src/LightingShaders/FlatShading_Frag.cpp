@@ -1,7 +1,11 @@
 #include "FlatShading_Frag.h"
 #include "src/Core/ScreenSize.h"
 
-void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p3_x, double p3_y, double p3_z, std::vector<double>& ZBuffer, Uint32 color)
+void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, 
+	double p1_x, double p1_y, double p1_z, 
+	double p2_x, double p2_y, double p2_z, 
+	double p3_x, double p3_y, double p3_z, 
+	std::vector<double>& ZBuffer, Uint32 color)
 {
 	if (p2_y < p1_y) {
 		std::swap(p2_y, p1_y);
@@ -23,7 +27,7 @@ void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, double p1_x, dou
 
 	if (p1_y == p2_y)
 	{
-		fillflattoptriangle_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer, color);
+		fillflattoptriangle_flat(surface, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, ZBuffer,color);
 	}
 
 	else if (p2_y == p3_y)
@@ -42,7 +46,11 @@ void FlatShading_Frag::filltriangle_flat(SDL_Surface * surface, double p1_x, dou
 	}
 }
 
-void FlatShading_Frag::fillflatbottomtriangle_flat(SDL_Surface * surface, double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z, double p4_x, double p3_y, double p4_z, std::vector<double>& ZBuffer, Uint32 color)
+void FlatShading_Frag::fillflatbottomtriangle_flat(SDL_Surface * surface, 
+	double p1_x, double p1_y, double p1_z, 
+	double p2_x, double p2_y, double p2_z, 
+	double p4_x, double p3_y, double p4_z, 
+std::vector<double>& ZBuffer, Uint32 color)
 {
 	//by default:
 		//p1_x , p1_y = top of flat botom triangle
@@ -75,10 +83,13 @@ void FlatShading_Frag::fillflatbottomtriangle_flat(SDL_Surface * surface, double
 		slope_2_z = dz2 / dy;
 	}
 
-	if (p1_y <= 1) { p1_y = 1; }
-	if (p2_y >= SCREENHEIGHT - 1) { p2_y = SCREENHEIGHT - 1; }
+	int yStart = p1_y;
+	int yEnd = p2_y;
 
-	for (int scanline = p1_y; scanline <= p2_y; scanline++) {
+	if (yStart <= 1) { yStart = 1; }
+	if (yEnd >= SCREENHEIGHT - 1) { yEnd = SCREENHEIGHT - 1; }
+
+	for (int scanline = yStart; scanline <= yEnd; scanline++) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 		double px2 = slope_2 * ((double)scanline - p2_y) + p4_x;
 
@@ -137,10 +148,14 @@ void FlatShading_Frag::fillflattoptriangle_flat(SDL_Surface * surface, double p2
 		slope_2_z = dz2 / dy;
 	}
 
-	if (p2_y <= 1) { p2_y = 1; }
-	if (p3_y >= SCREENHEIGHT -1	) { p3_y = SCREENHEIGHT - 1; }
 
-	for (int scanline = p3_y; scanline >= p2_y; scanline--) {
+	int yStart = (int)p3_y;
+	int yEnd = (int)p2_y;
+
+	if (yStart >= SCREENHEIGHT - 1) { yStart = SCREENHEIGHT - 1; }
+	if (yEnd <= 1) { yEnd = 1; }
+
+	for (int scanline = yStart; scanline > yEnd; scanline--) {
 		double px1 = slope_1 * ((double)scanline - p2_y) + p2_x;
 		double px2 = slope_2 * ((double)scanline - p3_y) + p3_x;
 

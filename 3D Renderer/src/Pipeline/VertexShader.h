@@ -14,7 +14,7 @@ public:
 	void setProjectionMatrix(float FovDegrees, float Near, float Far, unsigned int ScreenHeight, unsigned int ScreenWidth);
 	void setTransformMatrix(const Mat3f finalTransform = Mat3f::Identity());
 	void setViewMatrix(Vector3f& camerapos, Vector3f& lookDir);
-	void ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, std::shared_ptr<Light> light, bool testforcull = true);
+	void ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer, std::shared_ptr<Light>& light,Uint32 object_color, bool testforcull = true);
 	std::vector<triangle>& getRasterTriangles();
 	
 public:
@@ -85,22 +85,6 @@ private:
 	}
 
 
-	//Cyrus-Beck Line Clipping algorithm
-	Vector3f intersectPlane(Vector3f& plane, Vector3f& plane_normal, Vector3f& lineStart, Vector3f& lineEnd)
-	{
-		//UC DAVIS lectuer on clipping
-		plane_normal.Normalize();
-
-		float d1 = plane_normal.getDotProduct(lineStart - plane);
-		float d2 = plane_normal.getDotProduct(lineEnd - plane);
-		float t = d1 / (d1 - d2);
-		Vector3f point = lineStart + (lineEnd - lineStart) * t;
-
-
-		return point;
-	}
-
-
 	int trianglestoclip(Vector3f plane, Vector3f plane_normal, triangle& tri, triangle& new1, triangle& new2)
 	{
 		plane_normal.Normalize();
@@ -120,6 +104,17 @@ private:
 			float t = d1 / (d1 - d2);
 			Vector3f v_normal_lerp = v_normal_in + (v_normal_out - v_normal_in) * t;	//lerp the vertex normal
 			return v_normal_lerp.Normalize();
+		};
+
+		auto lerp_point = [&](Vector3f& point_in, Vector3f& point_out)
+		{
+			//UC DAVIS lectuer on clipping
+			//Cyrus-Beck Line Clipping algorithm
+			float d1 = plane_normal.getDotProduct(point_in - plane);
+			float d2 = plane_normal.getDotProduct(point_out - plane);
+			float t = d1 / (d1 - d2);
+			Vector3f point = point_in + (point_out - point_in) * t;
+			return point;
 		};
 
 		//compute distance of each point
@@ -153,11 +148,11 @@ private:
 			if (p0_dist >= 0)	//if point[0] inside
 			{
 				new1.points[0] = tri.points[0];
-				new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[1]);
-				new1.points[2] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[2]);
+				new1.points[1] = lerp_point(tri.points[0], tri.points[1]);
+				new1.points[2] = lerp_point(tri.points[0], tri.points[2]);
 				new1.viewpoints[0] = tri.viewpoints[0];
-				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[0], tri.viewpoints[1]);
-				new1.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[0], tri.viewpoints[2]);
+				new1.viewpoints[1] = lerp_point(tri.viewpoints[0], tri.viewpoints[1]);
+				new1.viewpoints[2] = lerp_point(tri.viewpoints[0], tri.viewpoints[2]);
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
 				new1.v_normal[1] = lerp_vertexnormal(tri.points[1], tri.points[0], tri.v_normal[1], tri.v_normal[0]);	//since the point is at the edge of the sreen, v.normal = s.normal.
@@ -166,12 +161,12 @@ private:
 
 			else if (p1_dist >= 0)	//if point[1] inside
 			{
-				new1.points[0] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[0]);
+				new1.points[0] = lerp_point(tri.points[1], tri.points[0]);
 				new1.points[1] = tri.points[1];
-				new1.points[2] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[2]);
-				new1.viewpoints[0] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[0]);
+				new1.points[2] = lerp_point(tri.points[1], tri.points[2]);
+				new1.viewpoints[0] = lerp_point(tri.viewpoints[1], tri.viewpoints[0]);
 				new1.viewpoints[1] = tri.viewpoints[1];
-				new1.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[2]);
+				new1.viewpoints[2] = lerp_point(tri.viewpoints[1], tri.viewpoints[2]);
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = lerp_vertexnormal(tri.points[0], tri.points[1], tri.v_normal[0], tri.v_normal[1]);
 				new1.v_normal[1] = tri.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
@@ -180,11 +175,11 @@ private:
 
 			else if (p2_dist >= 0)	//if point[2] is inside
 			{
-				new1.points[0] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[0]);
-				new1.points[1] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[1]);
+				new1.points[0] = lerp_point(tri.points[2], tri.points[0]);
+				new1.points[1] = lerp_point(tri.points[2], tri.points[1]);
 				new1.points[2] = tri.points[2];
-				new1.viewpoints[0] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[0]);
-				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[1]);
+				new1.viewpoints[0] = lerp_point(tri.viewpoints[2], tri.viewpoints[0]);
+				new1.viewpoints[1] = lerp_point(tri.viewpoints[2], tri.viewpoints[1]);
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = lerp_vertexnormal(tri.points[0], tri.points[2], tri.v_normal[0], tri.v_normal[2]);
@@ -201,10 +196,10 @@ private:
 			{
 				//connects with a new point and p1
 				new1.points[0] = tri.points[0];
-				new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[2]);
+				new1.points[1] = lerp_point(tri.points[0], tri.points[2]);
 				new1.points[2] = tri.points[1];
 				new1.viewpoints[0] = tri.viewpoints[0];
-				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[0], tri.viewpoints[2]);
+				new1.viewpoints[1] = lerp_point(tri.viewpoints[0], tri.viewpoints[2]);
 				new1.viewpoints[2] = tri.viewpoints[1];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
@@ -214,10 +209,10 @@ private:
 				//conects with both new points
 				new2.points[0] = tri.points[1];
 				new2.points[1] = new1.points[1];
-				new2.points[2] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[2]);
+				new2.points[2] = lerp_point(tri.points[1], tri.points[2]);
 				new2.viewpoints[0] = tri.viewpoints[1];
 				new2.viewpoints[1] = new1.viewpoints[1];
-				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[2]);
+				new2.viewpoints[2] = lerp_point(tri.viewpoints[1], tri.viewpoints[2]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[1];
 				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
@@ -228,10 +223,10 @@ private:
 			{
 				//connects with a new point and p1
 				new1.points[0] = tri.points[1];
-				new1.points[1] = intersectPlane(plane, plane_normal, tri.points[1], tri.points[0]);
+				new1.points[1] = lerp_point(tri.points[1], tri.points[0]);
 				new1.points[2] = tri.points[2];
 				new1.viewpoints[0] = tri.viewpoints[1];
-				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[1], tri.viewpoints[0]);
+				new1.viewpoints[1] = lerp_point(tri.viewpoints[1], tri.viewpoints[0]);
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[1];
@@ -241,10 +236,10 @@ private:
 				//conects with both new points
 				new2.points[0] = tri.points[2];
 				new2.points[1] = new1.points[1];
-				new2.points[2] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[0]);
+				new2.points[2] = lerp_point(tri.points[2], tri.points[0]);
 				new2.viewpoints[0] = tri.viewpoints[1];
 				new2.viewpoints[1] = new1.viewpoints[1];
-				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[0]);
+				new2.viewpoints[2] = lerp_point(tri.viewpoints[2], tri.viewpoints[0]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[2];
 				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
@@ -255,10 +250,10 @@ private:
 			{
 				//connects with a new point and p1
 				new1.points[0] = tri.points[0];
-				new1.points[1] = intersectPlane(plane, plane_normal, tri.points[0], tri.points[1]);
+				new1.points[1] = lerp_point(tri.points[0], tri.points[1]);
 				new1.points[2] = tri.points[2];
 				new1.viewpoints[0] = tri.viewpoints[0];
-				new1.viewpoints[1] = intersectPlane(plane, plane_normal, tri.viewpoints[0], tri.viewpoints[1]);
+				new1.viewpoints[1] = lerp_point(tri.viewpoints[0], tri.viewpoints[1]);
 				new1.viewpoints[2] = tri.viewpoints[2];
 				new1.s_normal = tri.s_normal;
 				new1.v_normal[0] = tri.v_normal[0];
@@ -268,32 +263,37 @@ private:
 				//conects with both new points
 				new2.points[0] = tri.points[2];
 				new2.points[1] = new1.points[1];
-				new2.points[2] = intersectPlane(plane, plane_normal, tri.points[2], tri.points[1]);
+				new2.points[2] = lerp_point(tri.points[2], tri.points[1]);
 				new2.viewpoints[0] = tri.viewpoints[2];
 				new2.viewpoints[1] = new1.viewpoints[1];
-				new2.viewpoints[2] = intersectPlane(plane, plane_normal, tri.viewpoints[2], tri.viewpoints[1]);
+				new2.viewpoints[2] = lerp_point(tri.viewpoints[2], tri.viewpoints[1]);
 				new2.s_normal = tri.s_normal;
 				new2.v_normal[0] = tri.v_normal[2];
 				new2.v_normal[1] = new1.v_normal[1];	//since the point is at the edge of the sreen, v.normal = s.normal.
 				new2.v_normal[2] = lerp_vertexnormal(tri.points[1], tri.points[2], tri.v_normal[1], tri.v_normal[2]);;
 			}
-
 			return 2;
 		}
 	}
 
 	//lighting functions
-	void ComputeLighting(std::shared_ptr<Light>& light)
+	void ComputeLighting(std::shared_ptr<Light>& light , Uint32 object_color)
 	{
 
-		Uint8 obj_col[4];
-		obj_col[0] = (light->light_col & 0xFF000000) >> 24;
-		obj_col[1] = (light->light_col & 0x00FF0000) >> 16;
-		obj_col[2] = (light->light_col & 0x0000FF00) >> 8;
-		obj_col[3] = (light->light_col & 0x000000FF);
+		Uint8 light_src_rgba[4];
+		light_src_rgba[0] = (light->light_col & 0xFF000000) >> 24;
+		light_src_rgba[1] = (light->light_col & 0x00FF0000) >> 16;
+		light_src_rgba[2] = (light->light_col & 0x0000FF00) >> 8;
+		light_src_rgba[3] = (light->light_col & 0x000000FF);
+
+		Uint8 object_rgba[4];
+		object_rgba[0] = (object_color & 0xFF000000) >> 24;
+		object_rgba[1] = (object_color & 0x00FF0000) >> 16;
+		object_rgba[2] = (object_color & 0x0000FF00) >> 8;
+		object_rgba[3] = (object_color & 0x000000FF);
 
 		Uint8 temp[4];	//temporary to modify colors
-		temp[0] = obj_col[0];
+		temp[0] = light_src_rgba[0];
 
 		if (light->light_type == Light_Type::PointLight)
 		{
@@ -347,7 +347,7 @@ private:
 
 						for (int j = 1; j < 4; ++j)	//compute rgb for each vertex
 						{
-							int c = obj_col[j] * f;
+							int c = (light_src_rgba[j] * object_rgba[j] * f) / 255.0;
 							if (c >= 255) c = 255;
 							temp[j] = c;
 						}
@@ -373,7 +373,7 @@ private:
 					for (int i = 0; i < 3; ++i)		//for each vertex
 					{
 						Uint8 temp[4];	//temporary to modify colors
-						temp[0] = obj_col[0];
+						temp[0] = light_src_rgba[0];
 						//ambient
 						double amb_k = dl.amb_constant;
 
@@ -395,7 +395,7 @@ private:
 
 						for (int j = 1; j < 4; ++j)
 						{
-							int c = obj_col[j] * f;
+							int c = (light_src_rgba[j] * object_rgba[j] * f) / 255.0;
 							if (c > 255) c = 255;
 
 							temp[j] = c;

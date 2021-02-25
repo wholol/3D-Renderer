@@ -20,7 +20,7 @@ void VertexShader::setViewMatrix(Vector3f & camerapos, Vector3f & lookDir)
 	this->camerapos = camerapos;
 }
 
-void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,std::shared_ptr<Light> light, bool testforcull)
+void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<Vector3f>& vertexbuffer, std::vector<Vector3f>& vertexnormbuffer,std::shared_ptr<Light>& light, Uint32 object_color, bool testforcull)
 {
 	for (int i = 0u; i < indexbuffer.size(); i += 3)
 	{
@@ -105,7 +105,7 @@ void VertexShader::ProcessPrimitive(std::vector<int>& indexbuffer, std::vector<V
 		}
 	}
 
-	ComputeLighting(light);	//computes the lighting at the vertices
+	ComputeLighting(light , object_color);	//computes the lighting at the vertices
 }
 
 std::vector<triangle>& VertexShader::getRasterTriangles()

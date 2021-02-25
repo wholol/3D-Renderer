@@ -7,7 +7,7 @@
 #include "VertexShader.h"
 #include "FragmentShader.h"
 #include "ScreenSize.h"
-#include "imgui.h"
+#include "GUI.h"
 
 class Application
 {
@@ -24,13 +24,18 @@ private:
 	SDL_Surface* surface;
 	SDL_Event event;
 
+	GUI gui;
+
 	LoadModel model;
+
 	VertexShader vs;
 	FragmentShader fs;
-	
+	bool renderWireFrame = false;
+	bool renderVertexNormals = false;
 	std::shared_ptr<PointLightSetup> pl;		//point light setup
 	std::shared_ptr<DirectionalLightSetup> dl;	//direct light setup
-	std::shared_ptr<Light> curr_light;			
+	std::shared_ptr<Light> curr_light;		
+	Uint32 Object_color;	//lightcolor for the model
 
 	Vector3f lookDir = { 0, 0, 1 };
 	Vector3f cam = { 0 , 0, 0 };
